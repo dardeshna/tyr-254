@@ -1,15 +1,15 @@
 package com.palyrobotics.frc2016.subsystems.controllers.team254;
 
 import com.palyrobotics.frc2016.Constants;
-import com.palyrobotics.frc2016.subsystems.Drive;
+import com.palyrobotics.frc2016.subsystems.controllers.DriveController;
 import com.team254.lib.util.DriveSignal;
-import com.team254.lib.util.Pose;
+import com.team254.lib.util.Position;
 import com.team254.lib.util.SynchronousPID;
 
-public class DriveFinishLineController implements Drive.DriveController {
+public class DriveFinishLineController implements DriveController {
     BangBangFinishLineController m_controller;
 
-    Pose m_setpoint = new Pose(0, 0, 0, 0, 0, 0);
+    Position m_setpoint = new Position(0, 0, 0, 0, 0, 0);
     double m_heading = 0;
     private SynchronousPID mTurnPid;
     public DriveSignal m_cached_drive = new DriveSignal(0, 0);
@@ -27,7 +27,7 @@ public class DriveFinishLineController implements Drive.DriveController {
     }
 
     @Override
-    public DriveSignal update(Pose pose) {
+    public DriveSignal update(Position pose) {
         m_setpoint = pose;
         double position = (pose.getLeftDistance() + pose.getRightDistance()) / 2.0;
         double throttle = m_controller.update(position);
@@ -38,7 +38,7 @@ public class DriveFinishLineController implements Drive.DriveController {
     }
 
     @Override
-    public Pose getCurrentSetpoint() {
+    public Position getCurrentSetpoint() {
         return m_setpoint;
     }
 

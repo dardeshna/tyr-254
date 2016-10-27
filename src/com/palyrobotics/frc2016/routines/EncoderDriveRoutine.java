@@ -1,10 +1,6 @@
-package com.palyrobotics.frc2016.behavior.routines;
-
-import java.util.Optional;
+package com.palyrobotics.frc2016.routines;
 
 import com.palyrobotics.frc2016.HardwareAdaptor;
-import com.palyrobotics.frc2016.behavior.Commands;
-import com.palyrobotics.frc2016.behavior.RobotSetpoints;
 import com.palyrobotics.frc2016.subsystems.Drive;
 import com.team254.lib.util.DriveSignal;
 
@@ -27,16 +23,15 @@ public class EncoderDriveRoutine extends Routine {
 	}
 
 	EncoderDriveRoutineStates m_state = EncoderDriveRoutineStates.START;
-	private double m_distance;
-	private double m_velocity_setpoint;
-	private final double m_default_velocity_setpoint = 0.5;
+	private double distance;
+	private double velocity;
+	private static final double m_default_velocity_setpoint = 0.5;
 	
 	// Timeout after x seconds
 	private double m_timeout;
-	private final double m_default_timeout = 5;
+	private static final double m_default_timeout = 5;
 	Timer m_timer = new Timer();
 
-	private boolean m_is_new_state = true;
 	private Drive drive = HardwareAdaptor.kDrive;
 	
 	/**
@@ -45,9 +40,7 @@ public class EncoderDriveRoutine extends Routine {
 	 * @param distance Target distance to travel
 	 */
 	public EncoderDriveRoutine(double distance) {
-		this.m_distance = distance;
-		this.m_timeout = m_default_timeout;
-		setVelocity(m_default_velocity_setpoint);
+		this(distance, m_default_timeout, m_default_velocity_setpoint);
 	}
 	
 	/**
@@ -55,10 +48,9 @@ public class EncoderDriveRoutine extends Routine {
 	 * @param distance Target distance to travel
 	 * @param timeout Time (seconds) before timeout
 	 */
-	public EncoderDriveRoutine(double distance, int timeout) {
-		this.m_distance = distance;
-		this.m_timeout = timeout;
-		setVelocity(m_default_velocity_setpoint);
+	public EncoderDriveRoutine(double distance, double timeout) {
+		this(distance, timeout, m_default_velocity_setpoint);
+
 	}
 	
 	/**
@@ -68,7 +60,8 @@ public class EncoderDriveRoutine extends Routine {
 	 * @param velocity Target velocity
 	 */
 	public EncoderDriveRoutine(double distance, double timeout, double velocity) {
-		this.m_distance = distance;
+		requires(drive);
+		this.distance = distance;
 		this.m_timeout = timeout;
 		setVelocity(velocity);
 	}
@@ -80,7 +73,7 @@ public class EncoderDriveRoutine extends Routine {
 	 */
 	public boolean setVelocity(double velocity) {
 		if(velocity > 0) {
-			this.m_velocity_setpoint = velocity;
+			this.velocity = velocity;
 			return true;
 		}
 		return false;
@@ -88,54 +81,46 @@ public class EncoderDriveRoutine extends Routine {
 
 	//Routines just change the states of the robotsetpoints, which the behavior manager then moves the physical subsystems based on.
 	@Override
-	public RobotSetpoints update(Commands commands, RobotSetpoints existing_setpoints) {
+	public void update() {
 		EncoderDriveRoutineStates new_state = m_state;
-		RobotSetpoints setpoints = existing_setpoints;
 		switch (m_state) {
 		case START:
 			m_timer.reset();
 			m_timer.start();
-			// Only set the setpoint the first time the state is START 
-			if(m_is_new_state) {
-				setpoints.encoder_drive_setpoint = Optional.of(m_distance);
-				setpoints.drive_velocity_setpoint = Optional.of(m_velocity_setpoint);
-			}
-
-			setpoints.drive_routine_action = RobotSetpoints.DriveRoutineAction.ENCODER_DRIVE;
 			new_state = EncoderDriveRoutineStates.DRIVING;
 			break;
 		case DRIVING:
-			setpoints.encoder_drive_setpoint = Optional.of(m_distance);
-			setpoints.drive_velocity_setpoint = Optional.of(m_velocity_setpoint);
-			if(drive.getPhysicalPose().getRightDistance() > m_distance) {
+			drive.setOpenLoop(new DriveSignal(velocity, velocity));
+			if(drive.getPhysicalPose().getRightDistance() > distance) {
 				new_state = EncoderDriveRoutineStates.DONE;
 			}
 			if(m_timer.get() > m_timeout) {
 				new_state = EncoderDriveRoutineStates.DONE;
 			}
 			break;
-		case DONE:
-			drive.reset();
+		default:
 			break;
 		}
 		
-		m_is_new_state = false;
 		if(new_state != m_state) {
 			m_state = new_state;
 			m_timer.reset();
-			m_is_new_state = true;
 		}
 		
-		return setpoints;
 	}
 
 	@Override
 	public void cancel() {
 		m_state = EncoderDriveRoutineStates.DONE;
+		cleanup();
+	}
+	
+	@Override
+	public void cleanup() {
 		m_timer.stop();
 		m_timer.reset();
-		drive.setOpenLoop(DriveSignal.NEUTRAL);
 		drive.reset();
+		drive.setOpenLoop(DriveSignal.NEUTRAL);	
 	}
 
 	@Override

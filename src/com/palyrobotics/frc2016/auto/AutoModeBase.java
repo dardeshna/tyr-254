@@ -1,12 +1,13 @@
 package com.palyrobotics.frc2016.auto;
 
-import com.palyrobotics.frc2016.auto.actions.Action;
+import com.palyrobotics.frc2016.routines.Routine;
 
 public abstract class AutoModeBase {
     protected double m_update_rate = 1.0 / 50.0;
     protected boolean m_active = false;
 
     protected abstract void routine() throws AutoModeEndedException;
+    
     public abstract String toString();
     public abstract void prestart();
 
@@ -36,18 +37,18 @@ public abstract class AutoModeBase {
         return isActive();
     }
 
-    public void runAction(Action action) throws AutoModeEndedException {
+    public void updateRoutine(Routine routine) throws AutoModeEndedException {
         isActiveWithThrow();
-        action.start();
-        while (isActiveWithThrow() && !action.isFinished()) {
-            action.update();
+        routine.start();
+        while (isActiveWithThrow() && !routine.isFinished()) {
+            routine.update();
             try {
                 Thread.sleep((long) (m_update_rate * 1000.0));
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
-        action.done();
+        routine.cleanup();
     }
 
 }

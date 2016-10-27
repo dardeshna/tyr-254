@@ -1,16 +1,14 @@
 package com.palyrobotics.frc2016.subsystems;
 
-import com.palyrobotics.frc2016.Constants;
-import com.palyrobotics.frc2016.Robot;
-import com.palyrobotics.frc2016.Robot.RobotName;
-import com.palyrobotics.frc2016.subsystems.controllers.EncoderTurnAngleController;
+import com.palyrobotics.frc2016.subsystems.controllers.DriveController;
 import com.palyrobotics.frc2016.subsystems.controllers.GyroTurnAngleController;
-import com.palyrobotics.frc2016.subsystems.controllers.team254.DriveFinishLineController;
-import com.palyrobotics.frc2016.subsystems.controllers.team254.DrivePathController;
 import com.palyrobotics.frc2016.subsystems.controllers.team254.DriveStraightController;
-import com.palyrobotics.frc2016.subsystems.controllers.team254.TurnInPlaceController;
-import com.team254.lib.trajectory.Path;
-import com.team254.lib.util.*;
+import com.team254.lib.util.CheesySpeedController;
+import com.team254.lib.util.DriveSignal;
+import com.team254.lib.util.Loop;
+import com.team254.lib.util.Position;
+import com.team254.lib.util.StateHolder;
+import com.team254.lib.util.Subsystem;
 
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
@@ -20,14 +18,6 @@ import edu.wpi.first.wpilibj.Encoder;
 
 public class Drive extends Subsystem implements Loop {
 
-	public interface DriveController {
-		DriveSignal update(Pose pose);
-
-		Pose getCurrentSetpoint();
-
-		public boolean onTarget();
-
-	}
 	private DoubleSolenoid m_shifter_solenoid = null;
 	private CheesySpeedController m_left_motor;
 	private CheesySpeedController m_right_motor;
@@ -45,25 +35,17 @@ public class Drive extends Subsystem implements Loop {
 
 	protected final double m_wheelbase_width; // Get from CAD
 	protected final double m_turn_slip_factor; // Measure empirically
-	private Pose m_cached_pose = new Pose(0, 0, 0, 0, 0, 0); // Don't allocate poses at 200Hz!
+	private Position m_cached_pose = new Position(0, 0, 0, 0, 0, 0); // Don't allocate poses at 200Hz!
 
 	public Drive(String name, CheesySpeedController left_drive,
 			CheesySpeedController right_drive, Encoder left_encoder,
 			Encoder right_encoder, ADXRS450_Gyro gyro, DoubleSolenoid shifter_solenoid) {
 		super(name);
-		if(Robot.name == RobotName.TYR) {
-			m_wheelbase_width = 26.0;
-			m_turn_slip_factor = 1.2;
-			// TODO: Encoder DPP's
-			m_inches_per_tick = 0.184;
-		}
-		else {
-			m_wheelbase_width = 22.0;
-			m_turn_slip_factor = 1.2;
-			// TODO: Encoder DPP's
-			m_inches_per_tick = 0.07033622;
-			mGear = DriveGear.HIGH;
-		}
+		m_wheelbase_width = 26.0;
+		m_turn_slip_factor = 1.2;
+		// TODO: Encoder DPP's
+		m_inches_per_tick = 0.184;
+		
 		this.m_left_motor = left_drive;
 		this.m_right_motor = right_drive;
 		this.m_left_encoder = left_encoder;
@@ -80,10 +62,6 @@ public class Drive extends Subsystem implements Loop {
 	}
 	
 	public void setGear(DriveGear targetGear) {
-		if(Robot.name == RobotName.DERICA) {
-			System.err.println("No gear shifting on Derica");
-			return;
-		}
 		switch(targetGear) {
 			case HIGH:
 				//TODO Which is high and which is low?
@@ -98,71 +76,15 @@ public class Drive extends Subsystem implements Loop {
 	public boolean isHighGear() {
 		return mGear == DriveGear.HIGH;
 	}
-
-	public void setDistanceSetpoint(double distance) {
-		setDistanceSetpoint(distance, Constants.kDriveMaxSpeedInchesPerSec);
-	}
-
-	public void setDistanceSetpoint(double distance, double velocity) {
-		// 0 < vel < max_vel
-		double vel_to_use = Math.min(Constants.kDriveMaxSpeedInchesPerSec, Math.max(velocity, 0));
-		m_controller = new DriveStraightController(
-				getPoseToContinueFrom(false),
-				distance,
-				vel_to_use);
-	}
 	
-	public void setAutoAlignSetpoint(double heading) {
-		// Check if already turning to that setpoint
-		if(m_controller instanceof GyroTurnAngleController) {
-//			if(m_controller.getCurrentSetpoint().getHeading()-getPhysicalPose().getHeading() != heading) {
-//				// New auto align iteration
-//				System.out.println("New auto align setpoint");
-//				setGyroTurnAngleSetpoint(heading);
-//			}
-		} else {
-			System.out.println("Started auto align controller");
-			setGyroTurnAngleSetpoint(heading, 0.45);
-		}
-	}
-	
-	public void setTurnSetpoint(double heading) {
-		setTurnSetpoint(heading, Constants.kTurnMaxSpeedRadsPerSec);
-	}
-
-	public void setTurnSetpoint(double heading, double velocity) {
-		velocity = Math.min(Constants.kTurnMaxSpeedRadsPerSec, Math.max(velocity, 0));
-		m_controller = new TurnInPlaceController(getPoseToContinueFrom(true), heading, velocity);
-	}
-
-	public void setEncoderTurnAngleSetpoint(double heading) {
-		setEncoderTurnAngleSetpoint(heading, 1);
-	}
-	public void setEncoderTurnAngleSetpoint(double heading, double maxVel) {
-		m_controller = new EncoderTurnAngleController(getPoseToContinueFrom(true), heading, maxVel);
-	}
-	
-	public void setGyroTurnAngleSetpoint(double heading) {
-		setGyroTurnAngleSetpoint(heading, 0.7);
-	}
-	public void setGyroTurnAngleSetpoint(double heading, double maxVel) {
-		m_controller = new GyroTurnAngleController(getPoseToContinueFrom(true), heading, maxVel);
+	public void turnAngle(double heading, double maxVel) {
+		m_controller = new GyroTurnAngleController(getPhysicalPose(), heading, maxVel);
 	}
 	
 	public void reset() {
 		m_left_encoder.reset();
 		m_right_encoder.reset();
 		m_controller = null;
-	}
-
-	public void setPathSetpoint(Path path) {
-		reset();
-		m_controller = new DrivePathController(path);
-	}
-
-	public void setFinishLineSetpoint(double distance, double heading) {
-		reset();
-		m_controller = new DriveFinishLineController(distance, heading, 1.0);
 	}
 
 	@Override
@@ -173,7 +95,7 @@ public class Drive extends Subsystem implements Loop {
 		states.put("right_encoder_rate", m_right_encoder.getRate());
 		states.put("right_encoder", m_right_encoder.getDistance());
 
-		Pose setPointPose = m_controller == null ? getPhysicalPose(): m_controller.getCurrentSetpoint();
+		Position setPointPose = m_controller == null ? getPhysicalPose(): m_controller.getCurrentSetpoint();
 				states.put("drive_set_point_pos",
 					DriveStraightController.encoderDistance(setPointPose));
 				states.put("turn_set_point_pos", setPointPose.getHeading());
@@ -201,27 +123,10 @@ public class Drive extends Subsystem implements Loop {
 		m_right_motor.set(-signal.rightMotor);
 	}
 
-	private Pose getPoseToContinueFrom(boolean for_turn_controller) {
-		if (!for_turn_controller && m_controller instanceof TurnInPlaceController) {
-			Pose pose_to_use = getPhysicalPose();
-			pose_to_use.m_heading = ((TurnInPlaceController) m_controller).getHeadingGoal();
-			pose_to_use.m_heading_velocity = 0;
-			return pose_to_use;
-		} else if (m_controller == null || (m_controller instanceof DriveStraightController && for_turn_controller)) {
-			return getPhysicalPose();
-		} else if (m_controller instanceof DriveFinishLineController) {
-			return getPhysicalPose();
-		} else if (m_controller.onTarget()) {
-			return m_controller.getCurrentSetpoint();
-		} else {
-			return getPhysicalPose();
-		}
-	}
-
 	/**
 	 * @return The pose according to the current sensor state
 	 */
-	public Pose getPhysicalPose() {
+	public Position getPhysicalPose() {
 		m_cached_pose.reset(
 				m_left_encoder.getDistance(),
 				m_right_encoder.getDistance(),
@@ -232,7 +137,7 @@ public class Drive extends Subsystem implements Loop {
 		return m_cached_pose;
 	}
 
-	public Drive.DriveController getController() {
+	public DriveController getController() {
 		return m_controller;
 	}
 

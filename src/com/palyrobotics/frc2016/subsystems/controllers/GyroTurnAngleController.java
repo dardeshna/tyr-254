@@ -5,14 +5,14 @@ import com.palyrobotics.frc2016.HardwareAdaptor;
 import com.palyrobotics.frc2016.Robot;
 import com.palyrobotics.frc2016.subsystems.Drive;
 import com.team254.lib.util.DriveSignal;
-import com.team254.lib.util.Pose;
+import com.team254.lib.util.Position;
 
 /**
  * Turns drivetrain using the gyroscope
  * @author Nihar
  *
  */
-public class GyroTurnAngleController implements Drive.DriveController {
+public class GyroTurnAngleController implements DriveController {
 	
 	private double maxVel;
 	
@@ -22,19 +22,16 @@ public class GyroTurnAngleController implements Drive.DriveController {
 	
 	private Drive kDrive = HardwareAdaptor.kDrive;
 	
-	private double mPriorHeading;
-	private Pose setpoint;
+	private Position setpoint;
 	
-	public GyroTurnAngleController(Pose priorSetpoint, double heading, double maxVel) {
+	public GyroTurnAngleController(Position priorSetpoint, double heading, double maxVel) {
 		this.maxVel = maxVel;
-		mPriorHeading = priorSetpoint.getHeading();
 		setpoint = priorSetpoint.copy();
 		setpoint.m_heading+=heading;
-		System.out.println("Target angle: "+(setpoint.getHeading()-mPriorHeading));
 	}
 	
 	@Override
-	public DriveSignal update(Pose pose) {
+	public DriveSignal update(Position pose) {
 		P = setpoint.getHeading()-pose.getHeading();
 		I = I + P * Constants.kLooperDt;
 		
@@ -49,7 +46,7 @@ public class GyroTurnAngleController implements Drive.DriveController {
 	}
 
 	@Override
-	public Pose getCurrentSetpoint() {
+	public Position getCurrentSetpoint() {
 		return setpoint;
 	}
 

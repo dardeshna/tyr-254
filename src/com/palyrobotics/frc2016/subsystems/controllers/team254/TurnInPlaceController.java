@@ -1,19 +1,19 @@
 package com.palyrobotics.frc2016.subsystems.controllers.team254;
 
 import com.palyrobotics.frc2016.Constants;
-import com.palyrobotics.frc2016.subsystems.Drive;
+import com.palyrobotics.frc2016.subsystems.controllers.DriveController;
 import com.team254.lib.trajectory.TrajectoryFollower;
 import com.team254.lib.util.DriveSignal;
-import com.team254.lib.util.Pose;
+import com.team254.lib.util.Position;
 
 /**
  * Controls the robot to turn in place
  */
-public class TurnInPlaceController implements Drive.DriveController {
+public class TurnInPlaceController implements DriveController {
     private final TrajectoryFollowingPositionController mController;
-    private final Pose mSetpointRelativePose;
+    private final Position mSetpointRelativePose;
 
-    public TurnInPlaceController(Pose poseToContinueFrom, double destHeading, double velocity) {
+    public TurnInPlaceController(Position poseToContinueFrom, double destHeading, double velocity) {
         TrajectoryFollower.TrajectoryConfig config = new TrajectoryFollower.TrajectoryConfig();
         config.dt = Constants.kControlLoopsDt;
         config.max_acc = Constants.kTurnMaxAccelRadsPerSec2;
@@ -35,7 +35,7 @@ public class TurnInPlaceController implements Drive.DriveController {
     }
 
     @Override
-    public DriveSignal update(Pose pose) {
+    public DriveSignal update(Position pose) {
     	System.out.println(pose.getHeading()+" "+mController.m_error+" "+pose.getHeadingVelocity()+" "+mController.get());
         mController.update(pose.getHeading(), pose.getHeadingVelocity());
         double turn = mController.get();
@@ -43,10 +43,10 @@ public class TurnInPlaceController implements Drive.DriveController {
     }
 
     @Override
-    public Pose getCurrentSetpoint() {
+    public Position getCurrentSetpoint() {
         TrajectoryFollower.TrajectorySetpoint setpoint = mController.getSetpoint();
         // TODO: these encoder values are wrong, but this isn't a controller I want to use anyways
-        return new Pose(
+        return new Position(
                 mSetpointRelativePose.getLeftDistance(),
                 mSetpointRelativePose.getRightDistance(),
                 mSetpointRelativePose.getLeftVelocity(),

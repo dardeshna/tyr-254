@@ -3,11 +3,10 @@ package com.palyrobotics.frc2016;
 import com.palyrobotics.frc2016.auto.AutoMode;
 import com.palyrobotics.frc2016.auto.AutoModeExecuter;
 import com.palyrobotics.frc2016.auto.AutoModeSelector;
-import com.palyrobotics.frc2016.behavior.BehaviorManager;
+import com.palyrobotics.frc2016.behavior.RoutineManager;
 import com.palyrobotics.frc2016.subsystems.Breacher;
 import com.palyrobotics.frc2016.subsystems.Drive;
 import com.palyrobotics.frc2016.subsystems.Intake;
-import com.palyrobotics.frc2016.subsystems.LowGoalShooter;
 import com.palyrobotics.frc2016.subsystems.TyrShooter;
 import com.palyrobotics.frc2016.util.CheesyDriveHelper;
 import com.palyrobotics.frc2016.util.Dashboard;
@@ -22,13 +21,8 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends IterativeRobot {
-	public enum RobotName {
-		TYR, DERICA
-	}
-	public static RobotName name = RobotName.DERICA;
 
 	public enum RobotState {
 		DISABLED, AUTONOMOUS, TELEOP
@@ -44,19 +38,16 @@ public class Robot extends IterativeRobot {
 	Looper subsystem_looper = new Looper();
 
 	AutoModeExecuter autoModeRunner = new AutoModeExecuter();
+	
 	// Subsystems
 	Drive drive = HardwareAdaptor.kDrive;
 	TyrShooter shooter = HardwareAdaptor.kTyrShooter;
 	Intake intake = HardwareAdaptor.kIntake;
 	Breacher breacher = HardwareAdaptor.kBreacher;
 	PowerDistributionPanel pdp = HardwareAdaptor.kPDP;
-	LowGoalShooter lowGoal = HardwareAdaptor.kLowGoalShooter;
 
-	BehaviorManager behavior_manager = new BehaviorManager();
-	OperatorInterface operator_interface = new OperatorInterface();
-
-	CheesyDriveHelper cdh = new CheesyDriveHelper(drive);
-	ProportionalDriveHelper pdh = new ProportionalDriveHelper(drive);
+	RoutineManager routine_manager = new RoutineManager();
+	OperatorInterface operator_interface = new OperatorInterface(routine_manager);
 
 	Joystick leftStick = HardwareAdaptor.kLeftStick;
 	Joystick rightStick = HardwareAdaptor.kRightStick;
@@ -73,14 +64,8 @@ public class Robot extends IterativeRobot {
 	public void robotInit() {
 		System.out.println("Start robotInit()");
 		subsystem_looper.register(drive);
-		if(Robot.name == RobotName.TYR) {
-			subsystem_looper.register(shooter);
-			subsystem_looper.register(breacher);
-		} else {
-			subsystem_looper.register(intake);
-			subsystem_looper.register(lowGoal);
-		}
-		//        SystemManager.getInstance().add(behavior_manager);
+		subsystem_looper.register(shooter);
+		subsystem_looper.register(breacher);
 		sensorTable = NetworkTable.getTable("Sensor");
 		mDashboard.init();
 	}
@@ -109,26 +94,15 @@ public class Robot extends IterativeRobot {
 		setState(RobotState.TELEOP);
 		System.out.println("Start teleopInit()");
 		subsystem_looper.start();
-		if(Robot.name == RobotName.TYR) {
-			shooter.reset();
-		}
+		shooter.reset();
 	}
 
 	@Override
 	public void teleopPeriodic() {
 		// Passes joystick control to subsystems for their processing
-		if(Robot.name == RobotName.TYR) {
-			shooter.update(((XboxController) operatorStick).getLeftY());
-			breacher.update(((XboxController) operatorStick).getRightY());
-		} else if(Robot.name == RobotName.DERICA) {
-//			intake.update(operatorStick.getY());
-		}
-		// Pick one or the other drive scheme
-//		pdh.pDrive(-leftStick.getY(), rightStick.getX(), behavior_manager.getSetpoints());
-		cdh.cheesyDrive(-leftStick.getY(), rightStick.getX(), rightStick.getRawButton(1), drive.isHighGear(), behavior_manager.getSetpoints());
 		
-		// Runs routines
-		behavior_manager.update(operator_interface.getCommands());
+		operator_interface.update();
+		routine_manager.update();
 
 		// Update sensorTable with encoder distances
 		sensorTable.putString("left", String.valueOf(HardwareAdaptor.kLeftDriveEncoder.getDistance()));
@@ -146,7 +120,7 @@ public class Robot extends IterativeRobot {
 		autoModeRunner.stop();
 
 		// Stop routines
-		behavior_manager.reset();
+		routine_manager.reset();
 
 		// Stop control loops
 		subsystem_looper.stop();

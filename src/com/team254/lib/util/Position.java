@@ -1,7 +1,7 @@
 package com.team254.lib.util;
 
-public class Pose {
-    public Pose(double leftDistance, double rightDistance, double leftVelocity,
+public class Position {
+    public Position(double leftDistance, double rightDistance, double leftVelocity,
                 double rightVelocity, double heading, double headingVelocity) {
         this.m_left_distance = leftDistance;
         this.m_right_distance = rightDistance;
@@ -53,10 +53,10 @@ public class Pose {
     }
     
     public class RelativePoseGenerator {
-        private Pose m_base_pose;
+        private Position m_base_pose;
 
         public RelativePoseGenerator() {
-            m_base_pose = Pose.this;
+            m_base_pose = Position.this;
         }
       
         /**
@@ -65,8 +65,8 @@ public class Pose {
          * @author Team 254
          *
          */
-        public Pose get(Pose pose) {
-            return new Pose(
+        public Position get(Position pose) {
+            return new Position(
                     pose.getLeftDistance() - m_base_pose.getLeftDistance(),
                     pose.getRightDistance() - m_base_pose.getRightDistance(),
                     m_base_pose.getLeftVelocity() - pose.getLeftVelocity(),
@@ -79,11 +79,11 @@ public class Pose {
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof Pose))
+        if (!(obj instanceof Position))
             return false;
         if (obj == this)
             return true;
-        Pose other_pose = (Pose) obj;
+        Position other_pose = (Position) obj;
         return other_pose.getLeftDistance() == getLeftDistance()
                 && other_pose.getRightDistance() == getRightDistance()
                 && other_pose.getLeftVelocity() == getLeftVelocity()
@@ -96,8 +96,8 @@ public class Pose {
      * Create a copy of the Pose (to not use the same reference)
      * @return A copy of the pose
      */
-    public Pose copy() {
-    	return new Pose(
+    public Position copy() {
+    	return new Position(
     			m_left_distance,
     			m_right_distance, 
     			m_left_velocity,

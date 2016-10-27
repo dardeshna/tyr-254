@@ -1,10 +1,7 @@
-package com.palyrobotics.frc2016.behavior.routines;
+package com.palyrobotics.frc2016.routines;
 
-import java.util.Optional;
-
-import com.palyrobotics.frc2016.behavior.Commands;
-import com.palyrobotics.frc2016.behavior.RobotSetpoints;
-import com.palyrobotics.frc2016.behavior.RobotSetpoints.DriveRoutineAction;
+import com.palyrobotics.frc2016.HardwareAdaptor;
+import com.palyrobotics.frc2016.subsystems.Drive;
 import com.team254.lib.util.DriveSignal;
 
 import edu.wpi.first.wpilibj.Timer;
@@ -19,9 +16,10 @@ public class AutoAlignmentRoutine extends Routine {
 	private enum AutoAlignStates {
 		START, SET_ANGLE, ALIGNING, DONE
 	}
+	private Drive drive = HardwareAdaptor.kDrive;
+
 
 	public AutoAlignStates m_state = AutoAlignStates.START;
-	private boolean m_is_new_state = true;
 	private NetworkTable table = NetworkTable.getTable("visiondata");
 	// Threshold angle for which we will turn
 	private final double m_min_angle = 3;
@@ -35,8 +33,10 @@ public class AutoAlignmentRoutine extends Routine {
 	private final double m_wait_time = 1.5; 
 	
 	
-	RobotSetpoints setpoints;
-
+	public AutoAlignmentRoutine() {
+		requires(HardwareAdaptor.kDrive);
+	}
+	
 	/**
 	 * Changes number of successive alignments
 	 */
@@ -45,8 +45,7 @@ public class AutoAlignmentRoutine extends Routine {
 	}
 
 	@Override
-	public RobotSetpoints update(Commands commands, RobotSetpoints existing_setpoints) {
-		RobotSetpoints setpoints = existing_setpoints;
+	public void update() {
 		AutoAlignStates new_state = m_state;
 		switch(m_state) {
 		case START:
@@ -54,13 +53,11 @@ public class AutoAlignmentRoutine extends Routine {
 				m_timer.reset();
 				m_timer.start();
 				drive.reset();
-				setpoints.auto_align_setpoint = RobotSetpoints.m_nullopt;
 				System.out.println("Started auto align " + m_state);
 				new_state = AutoAlignStates.SET_ANGLE;
 			} else {
 				new_state = AutoAlignStates.DONE;
 			}
-			setpoints.drive_routine_action = DriveRoutineAction.AUTO_ALIGN;
 			break;
 		case SET_ANGLE:
 			// Wait for m_wait_time before reading vision data (latency)
@@ -68,11 +65,6 @@ public class AutoAlignmentRoutine extends Routine {
 				break;
 			}
 			// If angle turnpoint has been set, then set this routine to waiting for alignment
-			if(existing_setpoints.auto_align_setpoint.isPresent()) {
-				System.out.println("Already set angle setpoint");
-				new_state = AutoAlignStates.ALIGNING;
-				break;
-			}
 			// Check for no goal, then already aligned, otherwise set setpoint
 			double skewAngle = table.getNumber("skewangle", 10000)/2;
 			if(skewAngle == 10000/2) {
@@ -85,8 +77,8 @@ public class AutoAlignmentRoutine extends Routine {
 				System.out.println("Already aligned");
 			} else {
 //				skewAngle = (skewAngle >=0) ? skewAngle-2:skewAngle+2;
-				setpoints.auto_align_setpoint = Optional.of(skewAngle);
-				System.out.println("setpoint #"+m_iterations+": "+setpoints.auto_align_setpoint.get());				
+				drive.turnAngle(skewAngle, 0.5);
+				new_state = AutoAlignStates.ALIGNING;
 			}
 			break;
 		case ALIGNING:
@@ -104,21 +96,22 @@ public class AutoAlignmentRoutine extends Routine {
 				}
 			}
 			break;
-		case DONE:
-			drive.reset();
+		default:
 			break;
 		}
-		m_is_new_state = false;
 		if(m_state != new_state) {
 			m_state = new_state;
-			m_is_new_state = true;
 		}
-		return setpoints;
 	}
 
 	@Override
 	public void cancel() {
 		m_state = AutoAlignStates.DONE;
+		cleanup();
+	}
+	
+	@Override
+	public void cleanup() {
 		drive.setOpenLoop(DriveSignal.NEUTRAL);
 		drive.reset();
 	}

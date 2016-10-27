@@ -1,13 +1,13 @@
 package com.palyrobotics.frc2016.subsystems.controllers.team254;
 
 import com.palyrobotics.frc2016.Constants;
-import com.palyrobotics.frc2016.subsystems.Drive;
+import com.palyrobotics.frc2016.subsystems.controllers.DriveController;
 import com.team254.lib.trajectory.LegacyTrajectoryFollower;
 import com.team254.lib.trajectory.Path;
 import com.team254.lib.trajectory.Trajectory;
 import com.team254.lib.util.ChezyMath;
 import com.team254.lib.util.DriveSignal;
-import com.team254.lib.util.Pose;
+import com.team254.lib.util.Position;
 
 /**
  * DrivePathController.java This controller drives the robot along a specified
@@ -15,7 +15,7 @@ import com.team254.lib.util.Pose;
  *
  * @author Tom Bottiglieri
  */
-public class DrivePathController implements Drive.DriveController {
+public class DrivePathController implements DriveController {
 
     public DrivePathController(Path path) {
         init();
@@ -79,7 +79,7 @@ public class DrivePathController implements Drive.DriveController {
     }
 
     @Override
-    public DriveSignal update(Pose pose) {
+    public DriveSignal update(Position pose) {
         if (onTarget()) {
             return new DriveSignal(0, 0);
         } else {
@@ -104,7 +104,7 @@ public class DrivePathController implements Drive.DriveController {
     }
 
     @Override
-    public Pose getCurrentSetpoint() {
-        return new Pose(followerLeft.getCurrentSegment().pos, 0, 0, 0, -followerLeft.getHeading(), 0);
+    public Position getCurrentSetpoint() {
+        return new Position(followerLeft.getCurrentSegment().pos, 0, 0, 0, -followerLeft.getHeading(), 0);
     }
 }

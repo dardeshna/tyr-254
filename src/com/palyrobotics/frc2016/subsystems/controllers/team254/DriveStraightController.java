@@ -1,21 +1,20 @@
 package com.palyrobotics.frc2016.subsystems.controllers.team254;
 
-import static com.team254.lib.trajectory.TrajectoryFollower.TrajectorySetpoint;
-
 import com.palyrobotics.frc2016.Constants;
-import com.palyrobotics.frc2016.subsystems.Drive;
+import com.palyrobotics.frc2016.subsystems.controllers.DriveController;
 import com.team254.lib.trajectory.TrajectoryFollower;
+import com.team254.lib.trajectory.TrajectoryFollower.TrajectorySetpoint;
 import com.team254.lib.util.DriveSignal;
-import com.team254.lib.util.Pose;
+import com.team254.lib.util.Position;
 import com.team254.lib.util.SynchronousPID;
 
-public class DriveStraightController implements Drive.DriveController {
+public class DriveStraightController implements DriveController {
 
     private TrajectoryFollowingPositionController mDistanceController;
     private SynchronousPID mTurnPid;
-    private Pose mSetpointRelativePose;
+    private Position mSetpointRelativePose;
 
-    public DriveStraightController(Pose priorSetpoint, double goalSetpoint, double maxVelocity) {
+    public DriveStraightController(Position priorSetpoint, double goalSetpoint, double maxVelocity) {
         TrajectoryFollower.TrajectoryConfig config = new TrajectoryFollower.TrajectoryConfig();
         config.dt = Constants.kControlLoopsDt;
         config.max_acc = Constants.kDriveMaxAccelInchesPerSec2;
@@ -41,7 +40,7 @@ public class DriveStraightController implements Drive.DriveController {
                 Constants.kDriveStraightKi,
                 Constants.kDriveStraightKd);
         mTurnPid.setSetpoint(priorSetpoint.getHeading());
-        mSetpointRelativePose = new Pose(
+        mSetpointRelativePose = new Position(
                 priorSetpoint.getLeftDistance(),
                 priorSetpoint.getRightDistance(),
                 0,
@@ -51,7 +50,7 @@ public class DriveStraightController implements Drive.DriveController {
     }
 
     @Override
-    public DriveSignal update(Pose currentPose) {
+    public DriveSignal update(Position currentPose) {
         mDistanceController.update(
                 (currentPose.getLeftDistance() + currentPose.getRightDistance()) / 2.0,
                 (currentPose.getLeftVelocity() + currentPose.getRightVelocity()) / 2.0);
@@ -62,11 +61,11 @@ public class DriveStraightController implements Drive.DriveController {
     }
 
     @Override
-    public Pose getCurrentSetpoint() {
+    public Position getCurrentSetpoint() {
         TrajectorySetpoint trajectorySetpoint = mDistanceController.getSetpoint();
         double dist = trajectorySetpoint.pos;
         double velocity = trajectorySetpoint.vel;
-        return new Pose(
+        return new Position(
                 mSetpointRelativePose.getLeftDistance() + dist,
                 mSetpointRelativePose.getRightDistance() + dist,
                 mSetpointRelativePose.getLeftVelocity() + velocity,
@@ -75,11 +74,11 @@ public class DriveStraightController implements Drive.DriveController {
                 mSetpointRelativePose.getHeadingVelocity());
     }
 
-    public static double encoderVelocity(Pose pose) {
+    public static double encoderVelocity(Position pose) {
         return (pose.getLeftVelocity() + pose.getRightVelocity()) / 2.0;
     }
 
-    public static double encoderDistance(Pose pose) {
+    public static double encoderDistance(Position pose) {
         return (pose.getLeftDistance() + pose.getRightDistance()) / 2.0;
     }
 

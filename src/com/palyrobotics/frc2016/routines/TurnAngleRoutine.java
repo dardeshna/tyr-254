@@ -1,8 +1,6 @@
-package com.palyrobotics.frc2016.behavior.routines;
+package com.palyrobotics.frc2016.routines;
 
 import com.palyrobotics.frc2016.HardwareAdaptor;
-import com.palyrobotics.frc2016.behavior.Commands;
-import com.palyrobotics.frc2016.behavior.RobotSetpoints;
 import com.palyrobotics.frc2016.subsystems.Drive;
 import com.team254.lib.util.DriveSignal;
 
@@ -20,6 +18,7 @@ public class TurnAngleRoutine extends Routine {
 	}
 	
 	public TurnAngleRoutine(double angle, double maxVel) {
+		requires(drive);
 		this.angle = angle;
 		this.maxVel = maxVel;
 	}
@@ -31,15 +30,13 @@ public class TurnAngleRoutine extends Routine {
 	}
 
 	@Override
-	public RobotSetpoints update(Commands commands, RobotSetpoints existing_setpoints) {
-		RobotSetpoints setpoints = existing_setpoints;
+	public void update() {
 		
 		switch(m_state) {
 		case START:
 			System.out.println("Set setpoint: "+angle);
-			drive.setGyroTurnAngleSetpoint(angle, maxVel);
+			drive.turnAngle(angle, maxVel);
 			
-			setpoints.drive_routine_action = RobotSetpoints.DriveRoutineAction.ENCODER_TURN;
 			m_state = States.TURNING;
 			break;
 			
@@ -48,20 +45,21 @@ public class TurnAngleRoutine extends Routine {
 				m_state = States.DONE;
 			}
 			break;
-			
-		case DONE:
-			drive.reset();
+		default:
 			break;
 		}
 		
-		return setpoints;
 	}
 	
 	@Override
 	public void cancel() {
 		m_state = States.DONE;
-		drive.setOpenLoop(DriveSignal.NEUTRAL);
+	}
+	
+	@Override
+	public void cleanup() {
 		drive.reset();
+		drive.setOpenLoop(DriveSignal.NEUTRAL);
 	}
 
 	@Override

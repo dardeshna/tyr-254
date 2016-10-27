@@ -1,21 +1,7 @@
 package com.palyrobotics.frc2016.auto.modes;
 
-import java.util.ArrayList;
-
-import com.palyrobotics.frc2016.Constants;
-import com.palyrobotics.frc2016.Robot;
-import com.palyrobotics.frc2016.Robot.RobotName;
 import com.palyrobotics.frc2016.auto.AutoMode;
 import com.palyrobotics.frc2016.auto.AutoModeEndedException;
-import com.palyrobotics.frc2016.auto.actions.Action;
-import com.palyrobotics.frc2016.auto.actions.AutoAlignAction;
-import com.palyrobotics.frc2016.auto.actions.DriveDistanceAction;
-import com.palyrobotics.frc2016.auto.actions.GetLowAction;
-import com.palyrobotics.frc2016.auto.actions.IntakeAction;
-import com.palyrobotics.frc2016.auto.actions.ParallelAction;
-import com.palyrobotics.frc2016.auto.actions.RaiseShooterAction;
-import com.palyrobotics.frc2016.auto.actions.ShootAction;
-import com.palyrobotics.frc2016.subsystems.Intake.WantedIntakeState;
 
 /**
  * Goes under the low bar then shoots a high goal
@@ -25,35 +11,38 @@ public class LowBarHighGoalAutoMode extends AutoMode {
 	
 	@Override
 	protected void routine() throws AutoModeEndedException {
+		/*
 		
-		/* Low bar */
 		waitTime(mCompressorWaitTime); //Waits for compressor
-		ArrayList<Action> crossLowBar = new ArrayList<Action>(2);
-		crossLowBar.add(new DriveDistanceAction(Constants.kLowBarDistance));
-		ArrayList<Action> prepareGoal = new ArrayList<Action>(2);
-		if(Robot.name == RobotName.TYR) {
-			crossLowBar.add(new GetLowAction());
-			prepareGoal.add(new RaiseShooterAction());
-			prepareGoal.add(new IntakeAction(1.0, WantedIntakeState.LOWERING));
-		}
-		runAction(new ParallelAction(crossLowBar));
-		/* Auto Align then high goal */
+		ArrayList<Routine> crossLowBar = new ArrayList<Routine>(2);
+		crossLowBar.add(new EncoderDriveRoutine(Constants.kLowBarDistance));
+		crossLowBar.add(new ShooterDown());
+		ArrayList<Routine> prepareGoal = new ArrayList<Routine>(2);
+		prepareGoal.add(new ShooterUp());
+		prepareGoal.add(new IntakeBall(1.0, WantedIntakeState.INTAKING));
 		
-		runAction(new AutoAlignAction());
-		runAction(new ParallelAction(prepareGoal));
-		runAction(new ShootAction());
+		updateRoutine(new ParallelRoutine(crossLowBar));		
+		updateRoutine(new AutoAlignmentRoutine());
+		updateRoutine(new ParallelRoutine(prepareGoal));
+		updateRoutine(new ShootRoutine());
 		waitTime(0.5);
-		/* Bring shooter down if extra time */
-		runAction(new GetLowAction());
+
+		updateRoutine(new ShooterDown());
+		
+		*/
+		
 	}
 
-	@Override
-	public void prestart() {
-		System.out.println("Starting low bar high goal auto!");
-	}
 	
 	@Override
 	public String toString() {
 		return "LowBar_HighGoal";
+	}
+
+
+	@Override
+	public void prestart() {
+		// TODO Auto-generated method stub
+		
 	}
 }

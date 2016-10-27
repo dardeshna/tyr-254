@@ -2,12 +2,11 @@ package com.palyrobotics.frc2016.subsystems.controllers;
 
 import com.palyrobotics.frc2016.Constants;
 import com.palyrobotics.frc2016.HardwareAdaptor;
-import com.palyrobotics.frc2016.Robot;
 import com.palyrobotics.frc2016.subsystems.Drive;
 import com.team254.lib.util.DriveSignal;
-import com.team254.lib.util.Pose;
+import com.team254.lib.util.Position;
 
-public class EncoderTurnAngleController implements Drive.DriveController {
+public class EncoderTurnAngleController implements DriveController {
 	
 	private double maxVel;
 	private double leftTarget;
@@ -24,21 +23,17 @@ public class EncoderTurnAngleController implements Drive.DriveController {
 	private double rightI;
 	private double rightD;
 	
-	public EncoderTurnAngleController(Pose priorSetpoint, double angle, double maxVel) {
+	public EncoderTurnAngleController(Position priorSetpoint, double angle, double maxVel) {
 		this.maxVel = maxVel;
-		
-		if(Robot.name == Robot.RobotName.DERICA) {
-			kDegreeToDistance = Constants.kDericaDegreeToDistance;
-		} else if(Robot.name == Robot.RobotName.TYR) {
-			kDegreeToDistance = Constants.kTyrDegreeToDistance;
-		}
+
+		kDegreeToDistance = Constants.kTyrDegreeToDistance;
 		
 		leftTarget = priorSetpoint.getLeftDistance() + angle * kDegreeToDistance;
 		rightTarget = priorSetpoint.getRightDistance() - angle * kDegreeToDistance;
 	}
 	
 	@Override
-	public DriveSignal update(Pose pose) {
+	public DriveSignal update(Position pose) {
 		leftP = leftTarget - pose.getLeftDistance();
 		rightP = rightTarget - pose.getRightDistance();
 		
@@ -57,7 +52,7 @@ public class EncoderTurnAngleController implements Drive.DriveController {
 	}
 
 	@Override
-	public Pose getCurrentSetpoint() {
+	public Position getCurrentSetpoint() {
 //		return new Pose(
 //				HardwareAdaptor.kDrive.m_left_encoder.getDistance(),//leftTarget,
 //				HardwareAdaptor.kDrive.m_right_encoder.getDistance(),//rightTarget,
@@ -65,7 +60,7 @@ public class EncoderTurnAngleController implements Drive.DriveController {
 //				HardwareAdaptor.kDrive.m_right_encoder.getRate(),//rightSpeed,
 //				Math.toRadians(HardwareAdaptor.kDrive.m_gyro.getAngle()),
 //				HardwareAdaptor.kDrive.m_gyro.getRate());
-		return new Pose(
+		return new Position(
 				leftTarget,
 				rightTarget,
 				leftSpeed,

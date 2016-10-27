@@ -1,93 +1,65 @@
 package com.palyrobotics.frc2016;
 
+import com.palyrobotics.frc2016.behavior.RoutineManager;
+import com.palyrobotics.frc2016.routines.TurnAngleRoutine;
+import com.palyrobotics.frc2016.subsystems.Drive.DriveGear;
+import com.palyrobotics.frc2016.util.CheesyDriveHelper;
+import com.palyrobotics.frc2016.util.XboxController;
+
 import edu.wpi.first.wpilibj.Joystick;
 
-import com.palyrobotics.frc2016.Robot.RobotName;
-import com.palyrobotics.frc2016.behavior.Commands;
-import com.palyrobotics.frc2016.subsystems.Drive.DriveGear;
-import com.palyrobotics.frc2016.util.XboxController;
-import com.team254.lib.util.Latch;
-
 public class OperatorInterface {
-	private Commands m_commands = new Commands();
 
 	Joystick leftStick = HardwareAdaptor.kLeftStick;
 	Joystick rightStick = HardwareAdaptor.kRightStick;
 	Joystick operatorStick = HardwareAdaptor.kOperatorStick;
-
-	Latch driveForwardLatch = new Latch();
-
-	public void reset() {
-		m_commands = new Commands();
+	CheesyDriveHelper cdh = new CheesyDriveHelper(HardwareAdaptor.kDrive);
+	RoutineManager routineManager;
+	
+	
+	public OperatorInterface(RoutineManager routineManager) {
+		this.routineManager = routineManager;
 	}
 	
-	public Commands getCommands() {
-		if(Robot.name == RobotName.TYR) {
-			return getTyrCommands();
-		} else {
-			return getDericaCommands();
-		}
-	}
-	
-	public Commands getDericaCommands() {
+	public void update() {
 		
-		m_commands.resetRoutineRequests();
-		// Operator Stick - Derica Intake Control
-		if (operatorStick.getRawButton(5)) {
-			m_commands.intake_request = Commands.IntakeRequest.EXHAUST;
-			m_commands.low_request = Commands.LowGoalShooterRequest.SHOOT;
-		} else if (operatorStick.getRawButton(3)) {
-			m_commands.intake_request = Commands.IntakeRequest.INTAKE;
-			m_commands.low_request = Commands.LowGoalShooterRequest.LOAD;
-		} else {
-			m_commands.intake_request = Commands.IntakeRequest.NONE;
-			m_commands.low_request = Commands.LowGoalShooterRequest.NONE;
-		}
-
-		// Left Stick trigger cancels current routine
-		m_commands.cancel_current_routine = leftStick.getTrigger(); // Cancels routine?
-
-		return m_commands;
-	}
-	
-	public Commands getTyrCommands() {
+		HardwareAdaptor.kTyrShooter.update(((XboxController) operatorStick).getLeftY());
+		HardwareAdaptor.kBreacher.update(((XboxController) operatorStick).getRightY());
+		
+		cdh.cheesyDrive(-leftStick.getY(), rightStick.getX(), rightStick.getRawButton(1), HardwareAdaptor.kDrive.isHighGear());
+		
 		// Operator Stick - Intake Control
 		if (((XboxController) operatorStick).getRightTriggerPressed()) {
-			m_commands.intake_request = Commands.IntakeRequest.INTAKE;
+			HardwareAdaptor.kIntake.setSpeed(1.0);
 		} else if (((XboxController) operatorStick).getLeftTriggerPressed()) {
-			m_commands.intake_request = Commands.IntakeRequest.EXHAUST;
+			HardwareAdaptor.kIntake.setSpeed(-1.0);
 		} else {
-			m_commands.intake_request = Commands.IntakeRequest.NONE;
+			HardwareAdaptor.kIntake.setSpeed(0.0);
 		}
+		
 		// Operator Stick - Shooter Control
 		if (((XboxController) operatorStick).getButtonX()) {
-			m_commands.shooter_request = Commands.ShooterRequest.EXTEND;
+			HardwareAdaptor.kTyrShooter.extend();
 		} else if (((XboxController) operatorStick).getButtonB()) {
-			m_commands.shooter_request = Commands.ShooterRequest.RETRACT;
-		} else {
-			m_commands.shooter_request = Commands.ShooterRequest.NONE;
+			HardwareAdaptor.kTyrShooter.retract();
 		}
+		
 		// Operator Stick - Latch Control
 		if (((XboxController) operatorStick).getButtonA()) {
-			m_commands.latch_request = Commands.LatchRequest.LOCK;
+			HardwareAdaptor.kTyrShooter.lock();
 		} else if (((XboxController) operatorStick).getButtonY()) {
-			m_commands.latch_request = Commands.LatchRequest.UNLOCK;
-		} else {
-			m_commands.latch_request = Commands.LatchRequest.NONE;
+			HardwareAdaptor.kTyrShooter.unlock();
 		}
 		// Operator Stick - Grabber Control
 		if (((XboxController) operatorStick).getLeftBumper()) {
-			m_commands.grabber_request = Commands.GrabberRequest.RELEASE;
+			HardwareAdaptor.kTyrShooter.release();
 		} else {
-			m_commands.grabber_request = Commands.GrabberRequest.GRAB;
+			HardwareAdaptor.kTyrShooter.grab();
 		}
 		
 		// Right Stick - Activate routine
 		if(rightStick.getRawButton(2)) {
-			m_commands.resetRoutineRequests();
-			m_commands.auto_align_request = Commands.AutoAlignRequest.ACTIVATE;
-		} else {
-			m_commands.resetRoutineRequests();
+			routineManager.submitRoutine(new TurnAngleRoutine(90, .5));
 		}
 		
 		if(rightStick.getRawButton(4)) {
@@ -96,9 +68,5 @@ public class OperatorInterface {
 			HardwareAdaptor.kDrive.setGear(DriveGear.HIGH);
 		}
 		
-		// Left Stick trigger cancels current routine
-		m_commands.cancel_current_routine = leftStick.getTrigger(); // Cancels routine?
-
-		return m_commands;
 	}
 }

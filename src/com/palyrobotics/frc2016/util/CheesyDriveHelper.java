@@ -1,7 +1,6 @@
 package com.palyrobotics.frc2016.util;
 
 import com.palyrobotics.frc2016.Constants;
-import com.palyrobotics.frc2016.behavior.RobotSetpoints;
 import com.palyrobotics.frc2016.subsystems.Drive;
 import com.team254.lib.util.DriveSignal;
 import com.team254.lib.util.Util;
@@ -25,17 +24,13 @@ public class CheesyDriveHelper {
 	}
 
 	public void cheesyDrive(double throttle, double wheel, boolean isQuickTurn,
-			boolean isHighGear, final RobotSetpoints setpoints) {
+			boolean isHighGear) {
 //		System.out.println("Gyro Angle: " + drive.m_gyro.getAngle());
 		if (DriverStation.getInstance().isAutonomous()) {
 			return;
 		}
 
 		if (drive.hasController()) {
-			return;
-		}
-
-		if(setpoints.drive_routine_action != RobotSetpoints.DriveRoutineAction.NONE) {
 			return;
 		}
 
