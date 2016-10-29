@@ -3,8 +3,6 @@ package com.palyrobotics.frc2016.actions;
 import static com.palyrobotics.frc2016.HardwareAdaptor.kIntake;
 import static com.palyrobotics.frc2016.HardwareAdaptor.kShooter;
 
-import com.palyrobotics.frc2016.subsystems.Intake.IntakeState;
-import com.palyrobotics.frc2016.subsystems.Shooter.ShooterState;
 import com.palyrobotics.lib.util.routines.Action;
 
 public class BasicActions {
@@ -14,8 +12,11 @@ public class BasicActions {
 			requires(kShooter);
 		}
 		@Override
-		public void update() {
-			kShooter.setState(ShooterState.LOWERED);
+		public void start() {
+			kShooter.lower();
+		}
+		public void cleanup() {
+			kShooter.idle();
 		}
 	}
 	
@@ -24,8 +25,11 @@ public class BasicActions {
 			requires(kShooter);
 		}
 		@Override
-		public void update() {
-			kShooter.setState(ShooterState.RAISED);
+		public void start() {
+			kShooter.raise();
+		}
+		public void cleanup() {
+			kShooter.idle();
 		}
 	}
 	
@@ -34,8 +38,11 @@ public class BasicActions {
 			requires(kIntake);
 		}
 		@Override
-		public void update() {
-			kIntake.setState(IntakeState.INTAKING);
+		public void start() {
+			kIntake.intake();
+		}
+		public void cleanup() {
+			kIntake.idle();
 		}
 	}
 	
@@ -44,8 +51,11 @@ public class BasicActions {
 			requires(kIntake);
 		}
 		@Override
-		public void update() {
-			kIntake.setState(IntakeState.EXPELLING);
+		public void start() {
+			kIntake.expel();
+		}
+		public void cleanup() {
+			kIntake.idle();
 		}
 	}
 	

@@ -27,8 +27,15 @@ public class Drive extends Subsystem implements Loop {
 	private DriveController m_controller = null;
 	
 	// Derica is always considered high gear
-	public enum DriveGear {HIGH, LOW}
+	public enum DriveGear {
+		HIGH, LOW
+	}
 	public DriveGear mGear;
+	
+	public enum DriveState {
+		CONTROLLER, OPEN, IDLE
+	}
+	public DriveState state = DriveState.IDLE;
 	
 	// Encoder DPP
 	protected final double m_inches_per_tick;
@@ -56,9 +63,10 @@ public class Drive extends Subsystem implements Loop {
 		this.m_shifter_solenoid = shifter_solenoid;
 	}
 
-	public void setOpenLoop(DriveSignal signal) {
-		m_controller = null;
-		setDriveOutputs(signal);
+	
+	private void setDriveOutputs(DriveSignal signal) {
+		m_left_motor.set(signal.leftMotor);
+		m_right_motor.set(-signal.rightMotor);
 	}
 	
 	public void setGear(DriveGear targetGear) {
@@ -73,20 +81,73 @@ public class Drive extends Subsystem implements Loop {
 		}
 	}
 	
-	public boolean isHighGear() {
-		return mGear == DriveGear.HIGH;
+	public void setOpenLoop(DriveSignal signal) {
+		state = DriveState.OPEN;
+		m_controller = null;
+		setDriveOutputs(signal);
 	}
 	
 	public void turnAngle(double heading, double maxVel) {
+		state = DriveState.CONTROLLER;
 		m_controller = new GyroTurnAngleController(getPhysicalPose(), heading, maxVel);
 	}
 	
+	public void driveDist(double distance, double maxVel) {
+		state = DriveState.CONTROLLER;
+		m_left_encoder.reset();
+		m_right_encoder.reset();
+		m_controller = new DriveStraightController(getPhysicalPose(), distance, maxVel);
+	}
+	
 	public void reset() {
+		state = DriveState.OPEN;
 		m_left_encoder.reset();
 		m_right_encoder.reset();
 		m_controller = null;
 	}
+	
+	public void idle() {
+		state = DriveState.IDLE;
+		setDriveOutputs(DriveSignal.NEUTRAL);
+		m_controller = null;
+	}
+	
+	/**
+	 * @return The pose according to the current sensor state
+	 */
+	public Position getPhysicalPose() {
+		m_cached_pose.reset(
+				m_left_encoder.getDistance(),
+				m_right_encoder.getDistance(),
+				m_left_encoder.getRate(),
+				m_right_encoder.getRate(),
+				m_gyro.getAngle(),
+				m_gyro.getRate());
+		return m_cached_pose;
+	}
+	
+	public boolean isHighGear() {
+		return mGear == DriveGear.HIGH;
+	}
 
+	public boolean controllerOnTarget() {
+		return m_controller != null && m_controller.onTarget();
+	}
+	
+	@Override
+	public void onStart() {
+	}
+	
+	@Override
+	public void onLoop() {
+		if (state == DriveState.CONTROLLER)
+			setDriveOutputs(m_controller.update(getPhysicalPose()));
+	}
+	
+	@Override
+	public void onStop() {
+	}
+		
 	@Override
 	public void getState(StateHolder states) {
 		//        states.put("gyro_angle", m_gyro.getAngle());
@@ -105,53 +166,9 @@ public class Drive extends Subsystem implements Loop {
 	}
 
 	@Override
-	public void onStart() {
-	}
-	@Override
-	public void onStop() {
-	}
-	@Override
-	public void onLoop() {
-		if(!hasController()) {
-			return;
-		}
-		setDriveOutputs(m_controller.update(getPhysicalPose()));
-	}
-
-	private void setDriveOutputs(DriveSignal signal) {
-		m_left_motor.set(signal.leftMotor);
-		m_right_motor.set(-signal.rightMotor);
-	}
-
-	/**
-	 * @return The pose according to the current sensor state
-	 */
-	public Position getPhysicalPose() {
-		m_cached_pose.reset(
-				m_left_encoder.getDistance(),
-				m_right_encoder.getDistance(),
-				m_left_encoder.getRate(),
-				m_right_encoder.getRate(),
-				m_gyro.getAngle(),
-				m_gyro.getRate());
-		return m_cached_pose;
-	}
-
-	public DriveController getController() {
-		return m_controller;
-	}
-
-	@Override
 	public void reloadConstants() {
 		// TODO Auto-generated method stub
 
 	}
 
-	public boolean controllerOnTarget() {
-		return m_controller != null && m_controller.onTarget();
-	}
-
-	public boolean hasController() {
-		return m_controller != null;
-	}
 }

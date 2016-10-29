@@ -20,6 +20,10 @@ public class ConstantVoltageController extends Controller {
 		return m_voltage;
 	}
 	
+	public void set(double voltage) {
+		m_voltage = voltage;
+	}
+	
 	@Override
 	public boolean isOnTarget() {
 		return false;

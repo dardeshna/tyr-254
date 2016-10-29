@@ -90,7 +90,6 @@ public class Robot extends IterativeRobot {
 		setState(RobotState.TELEOP);
 		System.out.println("Start teleopInit()");
 		subsystem_looper.start();
-		shooter.reset();
 	}
 
 	@Override
@@ -121,12 +120,11 @@ public class Robot extends IterativeRobot {
 		// Stop control loops
 		subsystem_looper.stop();
 
-		// Stop controllers
-		drive.setOpenLoop(DriveSignal.NEUTRAL);
-		//
-		// Reload constants
-		drive.reloadConstants();
-		//
+		drive.idle();
+		shooter.idle();
+		intake.idle();
+		breacher.idle();
+		
 		System.gc();
 
 		System.out.println("end disable init!");

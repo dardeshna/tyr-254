@@ -5,10 +5,10 @@ package com.palyrobotics.lib.util.routines;
  * @author dardeshna
  *
  */
-public abstract class Action extends Routine {
+public class Action extends Routine {
 	
 	@Override
-    public abstract void update();
+    public void update() { }
     
 	@Override
 	public boolean isFinished() {return true;}

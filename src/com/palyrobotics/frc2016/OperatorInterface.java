@@ -30,11 +30,11 @@ public class OperatorInterface {
 		
 		// Operator Stick - Intake Control
 		if (((XboxController) operatorStick).getRightTriggerPressed()) {
-			HardwareAdaptor.kIntake.setSpeed(1.0);
+			HardwareAdaptor.kIntake.spin(1.0);
 		} else if (((XboxController) operatorStick).getLeftTriggerPressed()) {
-			HardwareAdaptor.kIntake.setSpeed(-1.0);
+			HardwareAdaptor.kIntake.spin(-1.0);
 		} else {
-			HardwareAdaptor.kIntake.setSpeed(0.0);
+			HardwareAdaptor.kIntake.spin(0.0);
 		}
 		
 		// Operator Stick - Shooter Control

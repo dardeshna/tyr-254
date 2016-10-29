@@ -40,91 +40,42 @@ public class Shooter extends Subsystem implements Loop {
 	// Shooter motor controller for holding position, or raising/lowering shooter
 	Controller m_controller = null;
 	
+	private double joystickInput = 0;
+	
 	// Used mainly for autonomous raising and lowering of the shooter
 	public enum ShooterState {
-		RAISED, LOWERED, NONE
+		CONTROLLER, OPEN, IDLE
 	}
-	public ShooterState state = ShooterState.NONE;
+	public ShooterState state = ShooterState.IDLE;
 	
-	@Override
-	public void onStart() {
-	}
-
-	/**
-	 * Runs the current controller if enabled and not null
-	 */
-	@Override
-	public void onLoop() {
-		if(m_controller instanceof StrongHoldController) {
-			if(((StrongHoldController) m_controller).isEnabled()) {
-				m_shooter_motor.set(((StrongHoldController) m_controller).update());
-			}
-		}
-		else if(m_controller instanceof ConstantVoltageController) {
-			//System.out.println("Shooter voltage: "+((ConstantVoltageController) m_controller).get());
-			m_shooter_motor.set(((ConstantVoltageController) m_controller).get());
-		}
-	}
-
-	@Override
-	public void onStop() {
-	}
-
-	/**
-	 * Resets the shooter
-	 * Should be done in teleop init to clear out autonomous
-	 */
-	public void reset() {
-		// Reset controller
-		if(m_controller instanceof ConstantVoltageController) {
-			m_controller = new StrongHoldController(kP, kI, kD, kTolerance, m_potentiometer);
-			((StrongHoldController) m_controller).disable();
-		}
-		state = ShooterState.NONE;
+	public void raise() {
+		state = ShooterState.CONTROLLER;
+		m_controller = new ConstantVoltageController(kRaisingVoltage);
 	}
 	
-	/**
-	 * Updates the shooter's motor output based on joystick input
-	 * Called in teleop
-	 * If there is an enabled controller that loop is executed in onLoop
-	 * @see Shooter#onLoop()
-	 */
-	public void update(double joystickInput) {		
-		// If no potentiometer available, directly use joystick input scaled down
+	public void lower() {
+		state = ShooterState.CONTROLLER;
+		m_controller = new ConstantVoltageController(kLoweringVoltage);
+	}
+	
+	public void update(double joystickInput) {
 		if(m_potentiometer == null) {
-			m_shooter_motor.set(joystickInput*kJoystickScaleFactor);
-			return;
-		}
-		
-		// If joystick is within deadzone, then hold position using potentiometer
-		if(joystickInput < kDeadzone) {
-			holdPosition();
-		} else {
-			cancelHoldPosition();
+			state = ShooterState.OPEN;
 			m_shooter_motor.set(joystickInput*kJoystickScaleFactor);
 		}
-	}
-	
-	/**
-	 * Used for autonomous
-	 * Directs the shooter to a desired position
-	 */
-	public void setState(ShooterState state) {
-		switch(state) {
-		case NONE:
-			if(m_controller instanceof ConstantVoltageController) {
-				m_controller = null;
+		else {
+			// If joystick is within deadzone, then hold position using potentiometer
+			if(joystickInput < kDeadzone) {
+				state = ShooterState.CONTROLLER;
+				holdPosition();
+			} else {
+				state = ShooterState.OPEN;
+				cancelHoldPosition();
+				m_shooter_motor.set(joystickInput*kJoystickScaleFactor);
 			}
-			break;
-		case RAISED:
-			m_controller = new ConstantVoltageController(kRaisingVoltage);
-			break;
-		case LOWERED:
-			m_controller = new ConstantVoltageController(kLoweringVoltage);
-			break;
 		}
 	}
-	
+
 	/**
 	 * Tells the shooter to hold position at the target angle
 	 */
@@ -201,6 +152,39 @@ public class Shooter extends Subsystem implements Loop {
 		mDashboard.getTable().putString("grabbermicrostate", "Raised");
 		this.m_grabber_solenoid.set(Value.kReverse);
 	}
+	
+	public void idle() {
+		state = ShooterState.IDLE;
+		m_shooter_motor.set(0);
+		m_controller = null;
+	}
+	
+	@Override
+	public void onStart() {
+	}
+
+	/**
+	 * Runs the current controller if enabled and not null
+	 */
+	@Override
+	public void onLoop() {
+		if (state == ShooterState.CONTROLLER) {
+			if(m_controller instanceof StrongHoldController) {
+				if(((StrongHoldController) m_controller).isEnabled()) {
+					m_shooter_motor.set(((StrongHoldController) m_controller).update());
+				}
+			}
+			else if(m_controller instanceof ConstantVoltageController) {
+				m_shooter_motor.set(((ConstantVoltageController) m_controller).get());
+			}
+		}
+	}
+	
+
+	@Override
+	public void onStop() {
+	}
+	
 		
 	@Override
 	public void getState(StateHolder states) {

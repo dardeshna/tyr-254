@@ -12,6 +12,11 @@ public class Breacher extends Subsystem implements Loop{
 	private CheesySpeedController m_breacher_motor;
 	private AnalogPotentiometer m_potentiometer;
 	
+	public enum BreacherState {
+		OPEN, IDLE
+	}
+	public BreacherState state = BreacherState.IDLE;
+	
 	public Breacher(String name, CheesySpeedController motor) {
 		super(name);
 		m_breacher_motor = motor;
@@ -24,36 +29,37 @@ public class Breacher extends Subsystem implements Loop{
 	}
 
 	public void update(double joystickInput) {
+		state = BreacherState.OPEN;
 		m_breacher_motor.set(joystickInput);
 	}
 	
-	@Override
-	public void getState(StateHolder states) {
-		// TODO Auto-generated method stub
-		
+	public void idle() {
+		state = BreacherState.IDLE;
+		m_breacher_motor.set(0);
 	}
 
 	@Override
 	public void onStart() {
-		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onLoop() {
-		// TODO Auto-generated method stub
-		
+	
 	}
 
 	@Override
 	public void onStop() {
-		// TODO Auto-generated method stub
-		
+
+	}
+	
+	@Override
+	public void getState(StateHolder states) {
+
 	}
 
 	@Override
 	public void reloadConstants() {
-		// TODO Auto-generated method stub
 		
 	}
 

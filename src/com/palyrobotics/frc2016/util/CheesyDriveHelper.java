@@ -2,6 +2,7 @@ package com.palyrobotics.frc2016.util;
 
 import com.palyrobotics.frc2016.Constants;
 import com.palyrobotics.frc2016.subsystems.Drive;
+import com.palyrobotics.frc2016.subsystems.Drive.DriveState;
 import com.team254.lib.util.DriveSignal;
 import com.team254.lib.util.Util;
 
@@ -30,7 +31,7 @@ public class CheesyDriveHelper {
 			return;
 		}
 
-		if (drive.hasController()) {
+		if (drive.state != DriveState.OPEN) {
 			return;
 		}
 
