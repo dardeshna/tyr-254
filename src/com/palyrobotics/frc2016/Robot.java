@@ -8,7 +8,7 @@ import com.palyrobotics.frc2016.subsystems.Breacher;
 import com.palyrobotics.frc2016.subsystems.Drive;
 import com.palyrobotics.frc2016.subsystems.Intake;
 import com.palyrobotics.frc2016.subsystems.Shooter;
-import com.palyrobotics.frc2016.util.Dashboard;
+import com.palyrobotics.lib.util.Dashboard;
 import com.team254.lib.util.DriveSignal;
 import com.team254.lib.util.Looper;
 import com.team254.lib.util.RobotData;

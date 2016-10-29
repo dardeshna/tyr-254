@@ -3,8 +3,8 @@ package com.palyrobotics.frc2016;
 import com.palyrobotics.frc2016.behavior.RoutineManager;
 import com.palyrobotics.frc2016.routines.TurnAngleRoutine;
 import com.palyrobotics.frc2016.subsystems.Drive.DriveGear;
-import com.palyrobotics.frc2016.util.CheesyDriveHelper;
-import com.palyrobotics.frc2016.util.XboxController;
+import com.palyrobotics.lib.util.XboxController;
+import com.palyrobotics.lib.util.CheesyDriveHelper;
 
 import edu.wpi.first.wpilibj.Joystick;
 

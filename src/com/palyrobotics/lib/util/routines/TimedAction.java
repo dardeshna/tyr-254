@@ -2,31 +2,62 @@ package com.palyrobotics.lib.util.routines;
 
 import edu.wpi.first.wpilibj.Timer;
 
-public class TimedAction extends Action {
+/**
+ * Runs a routine for the allocated amount of time Note: This ignores the
+ * default {@link Routine#isFinished()} of the routine given
+ * 
+ * @author Devin, Nihar
+ *
+ */
+public class TimedAction extends Routine {
 
-    private double timeout;
-    private double startTime;
-    
-    private Action action;
+	private double mRunTime;
+	private double mStartTime;
 
-    public TimedAction(Action action, double timeout) {
-        this.action = action;
-        requiredSubsystems = action.requiredSubsystems;
-    }
-    
-    @Override
-    public boolean isFinished() {
-    	return Timer.getFPGATimestamp() >= startTime + timeout;
-    }
-    
-    @Override
-    public void update() {
-    	action.update();
-    }
+	private Routine mAction;
+
+	/**
+	 * 
+	 * @param action
+	 *            Routine to update
+	 * @param time
+	 *            Time in seconds to run this
+	 */
+	public TimedAction(Routine action, double time) {
+		this.mAction = action;
+		this.mRunTime = time;
+		requiredSubsystems = action.requiredSubsystems;
+	}
+
+	@Override
+	public void start() {
+		this.mStartTime = Timer.getFPGATimestamp();
+		mAction.start();
+	}
+
+	@Override
+	public void update() {
+		mAction.update();
+	}
+	
+	@Override
+	public boolean isFinished() {
+		return Timer.getFPGATimestamp() >= mStartTime + mRunTime;
+	}
+	
+	@Override
+	public void cleanup() {
+		mAction.cleanup();
+	}
+	
+	@Override
+	public void cancel() {
+		mAction.cancel();
+	}
 
 	@Override
 	public String getName() {
-		return "Timed"+action.getName();
+		return "Timed" + mAction.getName();
 	}
-	
+
 }

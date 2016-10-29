@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import org.json.simple.JSONArray;
 
 import com.palyrobotics.frc2016.auto.modes.DoNothingAutoMode;
-import com.palyrobotics.frc2016.util.Dashboard;
+import com.palyrobotics.lib.util.Dashboard;
 
 public class AutoModeSelector {
 	private static AutoModeSelector instance = null;

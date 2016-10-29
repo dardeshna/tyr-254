@@ -4,7 +4,7 @@ import com.palyrobotics.frc2016.subsystems.Breacher;
 import com.palyrobotics.frc2016.subsystems.Drive;
 import com.palyrobotics.frc2016.subsystems.Intake;
 import com.palyrobotics.frc2016.subsystems.Shooter;
-import com.palyrobotics.frc2016.util.XboxController;
+import com.palyrobotics.lib.util.XboxController;
 import com.team254.lib.util.CheesySpeedController;
 
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;

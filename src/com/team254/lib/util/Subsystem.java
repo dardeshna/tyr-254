@@ -1,6 +1,6 @@
 package com.team254.lib.util;
 
-import com.palyrobotics.frc2016.util.Dashboard;
+import com.palyrobotics.lib.util.Dashboard;
 
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
 

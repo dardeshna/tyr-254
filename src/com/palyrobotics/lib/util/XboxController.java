@@ -1,4 +1,4 @@
-package com.palyrobotics.frc2016.util;
+package com.palyrobotics.lib.util;
 
 import edu.wpi.first.wpilibj.Joystick;
 

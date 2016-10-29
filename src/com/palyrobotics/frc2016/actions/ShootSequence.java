@@ -2,15 +2,16 @@ package com.palyrobotics.frc2016.actions;
 
 import static com.palyrobotics.frc2016.HardwareAdaptor.kShooter;
 
-import com.palyrobotics.lib.util.routines.Action;
+import com.palyrobotics.lib.util.routines.Routine;
 
 import edu.wpi.first.wpilibj.Timer;
 
-public class ShootSequence extends Action {
-
-	private Timer timer = new Timer();		
+public class ShootSequence extends Routine {
+	// Used to track the waitTime
+	private Timer mTimer = new Timer();		
+	// Wait time before unlocking shooter (for grabber and extending lag)
 	private final double waitTime = .35;
-	private boolean isDone = false;
+	private boolean mIsDone = false;
 	
 	public ShootSequence() {
 		requires(kShooter);
@@ -18,8 +19,8 @@ public class ShootSequence extends Action {
 	
 	@Override
 	public void start() {
-		timer.reset();
-		timer.start();
+		mTimer.reset();
+		mTimer.start();
 	}
 	
 	@Override
@@ -27,16 +28,20 @@ public class ShootSequence extends Action {
 		// Extend shooter and release grabber
 		kShooter.extend();
 		kShooter.release();
-		if(timer.get()>= waitTime) {
+		if(mTimer.get()>= waitTime) {
 			// Wait for potential lag, then shoot
 			kShooter.unlock();
-			isDone = true;
+			mIsDone = true;
 		}
 	}
 
 	@Override
 	public boolean isFinished() {
-		return isDone;
+		return mIsDone;
 	}
-
+	
+	@Override
+	public String getName() {
+		return "ShootSequence";
+	}
 }

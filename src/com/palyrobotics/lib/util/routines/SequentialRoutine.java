@@ -1,43 +1,54 @@
 package com.palyrobotics.lib.util.routines;
 
 /**
- * Composite action, running all sub-actions at sequentially
- * @author dardeshna
- * @param A list of routines
+ * Composite action, running all sub-routines in sequence
+ * 
+ * @author Devin, Nihar
  */
 public class SequentialRoutine extends Routine {
+	// List of routines to run, in the order to run them in
+	private final Routine[] routines;
+	private int currentRoutine = 0;
+	/** Used for {@link SequentialRoutine#isFinished()} and to not update once done **/
+	private boolean mIsDone = false;
 
-    private final Routine[] routines;
-    private int currentRoutine = 0;
+	/**
+	 * Runs the routines in sequence
+	 * @param routines Ordered list of routines to run
+	 */
+	public SequentialRoutine(Routine... routines) {
+		this.routines = routines;
+		requiredSubsystems = Routine.subsystems(routines);
+	}
 
-    public SequentialRoutine(Routine... routines) {
-        this.routines = routines;
-        requiredSubsystems = Routine.subsystems(routines);
-    }
+	@Override
+	public boolean isFinished() {
+		return mIsDone;
+	}
 
-    @Override
-    public boolean isFinished() {
-        return currentRoutine == routines.length-1 && getCurrentRoutine().isFinished();
-    }
+	@Override
+	public void update() {
+		if(mIsDone) {
+			return;
+		}
+		
+		getCurrentRoutine().update();
+		if (getCurrentRoutine().isFinished()) {
+			getCurrentRoutine().cleanup();
+			if(currentRoutine == routines.length-1) {
+				mIsDone = true;
+			}
+			if (!mIsDone) {
+				currentRoutine++;
+				getCurrentRoutine().start();
+			}
+		}
+	}
 
-    @Override
-    public void update() {
-        getCurrentRoutine().update();
-        if (getCurrentRoutine().isFinished()) {
-        	getCurrentRoutine().cleanup();
-        	if (!isFinished())
-        		currentRoutine++;
-        		getCurrentRoutine().start();
-        }
-    }
-
-    @Override
-    public void cleanup() {
-    }
-
-    @Override
-    public void start() {
-    }
+	@Override
+	public void start() {
+		getCurrentRoutine().start();
+	}
 
 	@Override
 	public void cancel() {
@@ -46,10 +57,14 @@ public class SequentialRoutine extends Routine {
 
 	@Override
 	public String getName() {
-		return "SequentialRoutine";
+		String name = "SequentialRoutine";
+		for(Routine r : routines) {
+			name+=r.getName();
+		}
+		return name;
 	}
-	
-	private Routine getCurrentRoutine() {
+
+	public Routine getCurrentRoutine() {
 		return routines[currentRoutine];
 	}
 }
