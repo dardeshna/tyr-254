@@ -1,25 +1,19 @@
 package com.palyrobotics.frc2016.auto;
 
-import com.palyrobotics.frc2016.routines.Routine;
+import com.palyrobotics.lib.util.routines.Routine;
 
 public abstract class AutoModeBase {
     protected double m_update_rate = 1.0 / 50.0;
     protected boolean m_active = false;
 
-    protected abstract void routine() throws AutoModeEndedException;
+    protected abstract void routine();
     
     public abstract String toString();
-    public abstract void prestart();
 
     public void run() {
         m_active = true;
-        try {
-            routine();
-        } catch (AutoModeEndedException e) {
-            System.out.println("Auto mode done, ended early");
-            return;
-        }
-        System.out.println("Auto mode done");
+        routine();
+
     }
 
     public void stop() {
@@ -30,17 +24,9 @@ public abstract class AutoModeBase {
         return m_active;
     }
 
-    public boolean isActiveWithThrow() throws AutoModeEndedException {
-        if (!isActive()) {
-            throw new AutoModeEndedException();
-        }
-        return isActive();
-    }
-
-    public void updateRoutine(Routine routine) throws AutoModeEndedException {
-        isActiveWithThrow();
+    public void execute(Routine routine) {
         routine.start();
-        while (isActiveWithThrow() && !routine.isFinished()) {
+        while (isActive() && !routine.isFinished()) {
             routine.update();
             try {
                 Thread.sleep((long) (m_update_rate * 1000.0));

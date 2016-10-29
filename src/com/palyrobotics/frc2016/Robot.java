@@ -7,11 +7,8 @@ import com.palyrobotics.frc2016.behavior.RoutineManager;
 import com.palyrobotics.frc2016.subsystems.Breacher;
 import com.palyrobotics.frc2016.subsystems.Drive;
 import com.palyrobotics.frc2016.subsystems.Intake;
-import com.palyrobotics.frc2016.subsystems.TyrShooter;
-import com.palyrobotics.frc2016.util.CheesyDriveHelper;
+import com.palyrobotics.frc2016.subsystems.Shooter;
 import com.palyrobotics.frc2016.util.Dashboard;
-import com.palyrobotics.frc2016.util.ProportionalDriveHelper;
-import com.palyrobotics.frc2016.util.XboxController;
 import com.team254.lib.util.DriveSignal;
 import com.team254.lib.util.Looper;
 import com.team254.lib.util.RobotData;
@@ -34,14 +31,14 @@ public class Robot extends IterativeRobot {
 	public static void setState(RobotState state) {
 		s_robot_state = state;
 	}
-
+	
 	Looper subsystem_looper = new Looper();
 
 	AutoModeExecuter autoModeRunner = new AutoModeExecuter();
 	
 	// Subsystems
 	Drive drive = HardwareAdaptor.kDrive;
-	TyrShooter shooter = HardwareAdaptor.kTyrShooter;
+	Shooter shooter = HardwareAdaptor.kShooter;
 	Intake intake = HardwareAdaptor.kIntake;
 	Breacher breacher = HardwareAdaptor.kBreacher;
 	PowerDistributionPanel pdp = HardwareAdaptor.kPDP;
@@ -78,7 +75,6 @@ public class Robot extends IterativeRobot {
 		AutoMode mode = AutoModeSelector.getInstance().getAutoMode();
 		autoModeRunner.setAutoMode(mode);
 		// Prestart auto mode
-		mode.prestart();
 		autoModeRunner.start();
 		// Start control loops
 		subsystem_looper.start();

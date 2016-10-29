@@ -2,7 +2,6 @@ package com.palyrobotics.frc2016.subsystems;
 
 import com.palyrobotics.frc2016.subsystems.controllers.ConstantVoltageController;
 import com.palyrobotics.frc2016.subsystems.controllers.StrongHoldController;
-import com.palyrobotics.frc2016.util.Dashboard;
 import com.team254.lib.util.CheesySpeedController;
 import com.team254.lib.util.Controller;
 import com.team254.lib.util.Loop;
@@ -19,7 +18,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
  * @author Robbie, Nihar
  *
  */
-public class TyrShooter extends Subsystem implements Loop {
+public class Shooter extends Subsystem implements Loop {
 	// Hardware components
 	CheesySpeedController m_shooter_motor;
 	DoubleSolenoid m_shooter_solenoid;
@@ -42,10 +41,10 @@ public class TyrShooter extends Subsystem implements Loop {
 	Controller m_controller = null;
 	
 	// Used mainly for autonomous raising and lowering of the shooter
-	public enum WantedShooterState {
+	public enum ShooterState {
 		RAISED, LOWERED, NONE
 	}
-	public WantedShooterState mWantedState = WantedShooterState.NONE;
+	public ShooterState state = ShooterState.NONE;
 	
 	@Override
 	public void onStart() {
@@ -81,14 +80,14 @@ public class TyrShooter extends Subsystem implements Loop {
 			m_controller = new StrongHoldController(kP, kI, kD, kTolerance, m_potentiometer);
 			((StrongHoldController) m_controller).disable();
 		}
-		mWantedState = WantedShooterState.NONE;
+		state = ShooterState.NONE;
 	}
 	
 	/**
 	 * Updates the shooter's motor output based on joystick input
 	 * Called in teleop
 	 * If there is an enabled controller that loop is executed in onLoop
-	 * @see TyrShooter#onLoop()
+	 * @see Shooter#onLoop()
 	 */
 	public void update(double joystickInput) {		
 		// If no potentiometer available, directly use joystick input scaled down
@@ -110,9 +109,8 @@ public class TyrShooter extends Subsystem implements Loop {
 	 * Used for autonomous
 	 * Directs the shooter to a desired position
 	 */
-	public void setWantedState(WantedShooterState wantedState) {
-		mWantedState = wantedState;
-		switch(mWantedState) {
+	public void setState(ShooterState state) {
+		switch(state) {
 		case NONE:
 			if(m_controller instanceof ConstantVoltageController) {
 				m_controller = null;
@@ -225,7 +223,7 @@ public class TyrShooter extends Subsystem implements Loop {
 	 * @param latch_solenoid solenoid that locks the shooter in place
 	 * @param grabber_solenoid solenoid that controls the grabber
 	 */
-	public TyrShooter(String name, CheesySpeedController shooter_motor, DoubleSolenoid shooter_solenoid,
+	public Shooter(String name, CheesySpeedController shooter_motor, DoubleSolenoid shooter_solenoid,
 			DoubleSolenoid latch_solenoid, DoubleSolenoid grabber_solenoid, AnalogPotentiometer shooter_potentiometer) {
 		super(name);
 		this.m_shooter_motor = shooter_motor;
@@ -248,7 +246,7 @@ public class TyrShooter extends Subsystem implements Loop {
 	 * @param latch_solenoid solenoid that locks the shooter in place
 	 * @param grabber_solenoid solenoid that controls the grabber
 	 */
-	public TyrShooter(String name, CheesySpeedController shooter_motor, DoubleSolenoid shooter_solenoid,
+	public Shooter(String name, CheesySpeedController shooter_motor, DoubleSolenoid shooter_solenoid,
 			DoubleSolenoid latch_solenoid, DoubleSolenoid grabber_solenoid) {
 		super(name);
 		this.m_shooter_motor = shooter_motor;

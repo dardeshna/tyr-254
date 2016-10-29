@@ -110,38 +110,6 @@ public class Constants extends ConstantsBase {
 	public static int kGrabberSolenoidPortExtend = 4;
 	public static int kGrabberSolenoidPortRetract = 3;
 
-	/*
-	 * DERICA
-	 */
-	// DRIVETRAIN
-	// Motors
-	public static int kDericaLeftDriveFrontMotorDeviceID  = 2;
-	public static int kDericaLeftDriveBackMotorDeviceID = 3;
-	public static int kDericaLeftDriveFrontMotorPDP = 14;
-	public static int kDericaLeftDriveBackMotorPDP = 3;
-	public static int kDericaRightDriveFrontMotorDeviceID = 4;
-	public static int kDericaRightDriveBackMotorDeviceID = 1;
-	public static int kDericaRightDriveFrontMotorPDP = 15;
-	public static int kDericaRightDriveBackMotorPDP = 2;
-	// DIO Encoders
-	public static int kDericaLeftDriveEncoderDIOA = 2;
-	public static int kDericaLeftDriveEncoderDIOB = 3;
-	public static int kDericaRightDriveEncoderDIOA = 0;
-	public static int kDericaRightDriveEncoderDIOB = 1;
-
-	// INTAKE
-	public static int kDericaIntakeMotorPWM = 7;
-	public static int kDericaIntakeMotorPDP = 1;
-	public static int kDericaArmIntakeMotorPWM = 8;
-	public static int kDericaArmIntakeMotorPDP = 0;
-	public static int kDericaLowGoalShooterPWM = 0;
-	public static int kDericaLowGoalShooterPDP = 3;
-
-
-
-	// Compressor Ports DON'T WORK
-	public static int kCompressorRelayPort = 0;
-	public static int kPressureSwitchDIO = 1;
 
 	// !!! Physical constants
 	public static final double kLowBarDistance = 6.5*12;

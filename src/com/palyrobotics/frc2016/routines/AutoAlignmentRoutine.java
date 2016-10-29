@@ -2,6 +2,7 @@ package com.palyrobotics.frc2016.routines;
 
 import com.palyrobotics.frc2016.HardwareAdaptor;
 import com.palyrobotics.frc2016.subsystems.Drive;
+import com.palyrobotics.lib.util.routines.Routine;
 import com.team254.lib.util.DriveSignal;
 
 import edu.wpi.first.wpilibj.Timer;

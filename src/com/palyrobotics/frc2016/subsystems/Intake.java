@@ -17,10 +17,10 @@ import edu.wpi.first.wpilibj.AnalogPotentiometer;
  */
 public class Intake extends Subsystem implements Loop {
 	// Used mainly for autonomous raising and lowering of the shooter
-	public enum WantedIntakeState {
+	public enum IntakeState {
 		INTAKING, EXPELLING, NONE
 	}
-	public WantedIntakeState mWantedState = WantedIntakeState.NONE;
+	public IntakeState state = IntakeState.NONE;
 	
 	// One of the following will be null depending on the robot
 	CheesySpeedController m_left_motor = null;
@@ -78,9 +78,8 @@ public class Intake extends Subsystem implements Loop {
 	 * Used for autonomous
 	 * Directs the shooter to a desired position
 	 */
-	public void setWantedState(WantedIntakeState wantedState) {
-		mWantedState = wantedState;
-		switch(mWantedState) {
+	public void setState(IntakeState state) {
+		switch(state) {
 		case NONE:
 			if(m_controller instanceof ConstantVoltageController) {
 				m_controller = null;

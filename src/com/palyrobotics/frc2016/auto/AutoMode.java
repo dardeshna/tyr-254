@@ -1,19 +1,22 @@
 package com.palyrobotics.frc2016.auto;
 
-import com.palyrobotics.frc2016.HardwareAdaptor;
-import com.palyrobotics.frc2016.routines.auto.TimeoutRoutine;
-import com.palyrobotics.frc2016.subsystems.Drive;
-import com.palyrobotics.frc2016.subsystems.Intake;
-
-import edu.wpi.first.wpilibj.PowerDistributionPanel;
+import com.palyrobotics.lib.util.routines.*;
 
 public abstract class AutoMode extends AutoModeBase {
 
-    protected Drive drive = HardwareAdaptor.kDrive;
-    protected PowerDistributionPanel pdp = HardwareAdaptor.kPDP;
-    protected Intake intake = HardwareAdaptor.kIntake;
-
-    public void waitTime(double seconds) throws AutoModeEndedException {
-        updateRoutine(new TimeoutRoutine(seconds));
-    }    
+    protected void wait(double seconds) {
+        execute(new WaitAction(seconds));
+    }
+    
+    protected Routine timed(Action action, double time) {
+    	return new TimedAction(action, time);
+    }
+    
+    protected Routine parallel(Routine... routines) {
+    	return new ParallelRoutine(routines);
+    }
+    
+    protected Routine sequential(Routine... routines) {
+    	return new SequentialRoutine(routines);
+    }
 }

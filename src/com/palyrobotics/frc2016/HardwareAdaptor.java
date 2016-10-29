@@ -3,7 +3,7 @@ package com.palyrobotics.frc2016;
 import com.palyrobotics.frc2016.subsystems.Breacher;
 import com.palyrobotics.frc2016.subsystems.Drive;
 import com.palyrobotics.frc2016.subsystems.Intake;
-import com.palyrobotics.frc2016.subsystems.TyrShooter;
+import com.palyrobotics.frc2016.subsystems.Shooter;
 import com.palyrobotics.frc2016.util.XboxController;
 import com.team254.lib.util.CheesySpeedController;
 
@@ -80,7 +80,7 @@ public class HardwareAdaptor {
 	static DoubleSolenoid kGrabberSolenoid = null;
 	static CheesySpeedController kShooterMotor = null;
 	
-	public static TyrShooter kTyrShooter = null;
+	public static Shooter kShooter = null;
 
 	static {
 		
@@ -92,7 +92,7 @@ public class HardwareAdaptor {
 				Constants.kGrabberSolenoidPortExtend, Constants.kGrabberSolenoidPortRetract);
 		kShooterMotor = new CheesySpeedController(new CANTalon(Constants.kTyrShooterMotorDeviceID), 
 				Constants.kTyrShooterMotorPDP);
-		kTyrShooter = new TyrShooter("shooter", kShooterMotor, kShooterSolenoid, kLatchSolenoid, kGrabberSolenoid);
+		kShooter = new Shooter("shooter", kShooterMotor, kShooterSolenoid, kLatchSolenoid, kGrabberSolenoid);
 		
 	}
 

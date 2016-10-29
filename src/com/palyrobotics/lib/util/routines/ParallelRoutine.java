@@ -1,60 +1,59 @@
-package com.palyrobotics.frc2016.routines.auto;
+package com.palyrobotics.lib.util.routines;
 
-import java.util.ArrayList;
-
-import com.palyrobotics.frc2016.routines.Routine;
 
 /**
  * Composite action, running all sub-actions at the same time All actions are
  * started then updated until all actions report being done.
- * @author Team 254
- * @param A List of Action objects
+ * @author dardeshna
+ * @param A list of routines
  */
 public class ParallelRoutine extends Routine {
 
-    private final ArrayList<Routine> routines;
+    private final Routine[] routines;
 
-    public ParallelRoutine(ArrayList<Routine> routines) throws Exception {
+    public ParallelRoutine(Routine... routines) {
         this.routines = routines;
-        requiredSubsystems = Routine.checkSubsystems(routines);
+        requiredSubsystems = Routine.subsystems(this.routines);
     }
 
     @Override
     public boolean isFinished() {
-        boolean all_finished = true;
         for (Routine r : routines) {
             if (!r.isFinished()) {
-                all_finished = false;
+                return false;
             }
         }
-        return all_finished;
+        return true;
     }
 
     @Override
     public void update() {
         for (Routine r : routines) {
-            r.update();
+        	if (!r.isFinished()) {
+	        	r.update();
+	        	if (r.isFinished()) {
+	            	r.cleanup();
+	            }
+        	}
         }
     }
 
     @Override
     public void cleanup() {
-        for (Routine r : routines) {
-            r.cleanup();
-        }
+    	
     }
 
     @Override
     public void start() {
         for (Routine r : routines) {
-            r.start();
+        	r.start();
         }
     }
 
 	@Override
 	public void cancel() {
 		for (Routine r : routines) {
-            r.cancel();
+        	r.cancel();
         }
 		
 	}

@@ -23,7 +23,7 @@ public class OperatorInterface {
 	
 	public void update() {
 		
-		HardwareAdaptor.kTyrShooter.update(((XboxController) operatorStick).getLeftY());
+		HardwareAdaptor.kShooter.update(((XboxController) operatorStick).getLeftY());
 		HardwareAdaptor.kBreacher.update(((XboxController) operatorStick).getRightY());
 		
 		cdh.cheesyDrive(-leftStick.getY(), rightStick.getX(), rightStick.getRawButton(1), HardwareAdaptor.kDrive.isHighGear());
@@ -39,22 +39,22 @@ public class OperatorInterface {
 		
 		// Operator Stick - Shooter Control
 		if (((XboxController) operatorStick).getButtonX()) {
-			HardwareAdaptor.kTyrShooter.extend();
+			HardwareAdaptor.kShooter.extend();
 		} else if (((XboxController) operatorStick).getButtonB()) {
-			HardwareAdaptor.kTyrShooter.retract();
+			HardwareAdaptor.kShooter.retract();
 		}
 		
 		// Operator Stick - Latch Control
 		if (((XboxController) operatorStick).getButtonA()) {
-			HardwareAdaptor.kTyrShooter.lock();
+			HardwareAdaptor.kShooter.lock();
 		} else if (((XboxController) operatorStick).getButtonY()) {
-			HardwareAdaptor.kTyrShooter.unlock();
+			HardwareAdaptor.kShooter.unlock();
 		}
 		// Operator Stick - Grabber Control
 		if (((XboxController) operatorStick).getLeftBumper()) {
-			HardwareAdaptor.kTyrShooter.release();
+			HardwareAdaptor.kShooter.release();
 		} else {
-			HardwareAdaptor.kTyrShooter.grab();
+			HardwareAdaptor.kShooter.grab();
 		}
 		
 		// Right Stick - Activate routine
