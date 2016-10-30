@@ -39,35 +39,29 @@ public abstract class Routine {
 	/**
 	 * Called when the routine is started
 	 */
-	public void start() {
-	}
+	public void start() { }
 
 	/**
 	 * Called every update cycle
 	 */
-	public void update() {
-	}
+	public void update() { }
 
 	/**
 	 * Returns whether the routine is finished
 	 * By default returns true immediately
 	 * @return whether the routine is finished
 	 */
-	public boolean isFinished() {
-		return true;
-	}
+	public boolean isFinished() { return true; }
 
 	/**
 	 * Called when routine naturally finishes
 	 */
-	public void cleanup() {
-	}
+	public void cleanup() { }
 
 	/**
 	 * Called when routine is manually canceled
 	 */
-	public void cancel() {
-	}
+	public void cancel() { }
 
 	/**
 	 * Gives a string name for the routine or action
