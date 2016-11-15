@@ -5,8 +5,14 @@ import com.palyrobotics.frc2016.Dashboard;
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
 
 public abstract class Subsystem implements Tappable {
-	public Dashboard mDashboard = Dashboard.getInstance();
-    String name;
+	
+	protected Dashboard mDashboard = Dashboard.getInstance();
+    protected String name;
+    
+	public enum SubsystemState {
+		CONTROLLER, OPEN, IDLE
+	}
+	public SubsystemState state = SubsystemState.IDLE;
 
     public Subsystem(String name) {
         this.name = name;

@@ -6,49 +6,49 @@ package com.palyrobotics.lib.util.routines;
  * 
  * @author dardeshna, niharmitra
  */
-public class ParallelRoutine extends Routine {
+public class DoUntilRoutine extends Routine {
 
+	private final Routine primaryRoutine;
     private final Routine[] routines;
-    private boolean cleanUpWhenDone = true;
-    
-    public ParallelRoutine(Routine... routines) {
+
+    public DoUntilRoutine(Routine primaryRoutine, Routine... routines) {
         this.routines = routines;
-        requiredSubsystems = Routine.subsystems(this.routines);
+        this.primaryRoutine = primaryRoutine;
+        Routine[] allRoutines = new Routine[routines.length+1];
+        for (int i = 0; i < routines.length; i++) {
+        	allRoutines[i] = routines[i];
+        }
+        allRoutines[allRoutines.length-1] = primaryRoutine;
+        requiredSubsystems = Routine.subsystems(allRoutines);
     }
 
     @Override
     public boolean isFinished() {
-        for (Routine r : routines) {
-            if (!r.isFinished()) {
-                return false;
-            }
-        }
-        return true;
+        return primaryRoutine.isFinished();
     }
 
     @Override
     public void update() {
+    	primaryRoutine.update();
+    	if (primaryRoutine.isFinished()) {
+        	primaryRoutine.cleanup();
+        }
         for (Routine r : routines) {
-        	if (!r.isFinished()) {
-	        	r.update();
-	        	if (r.isFinished() && cleanUpWhenDone) {
-	            	r.cleanup();
-	            }
-        	}
+        	r.update();
+        	if (primaryRoutine.isFinished()) {
+            	r.cleanup();
+            }
         }
     }
 
     @Override
     public void cleanup() {
-    	if (!cleanUpWhenDone) {
-    		for (Routine r : routines) {
-    			r.cleanup();
-    		}
-    	}
+    	
     }
 
     @Override
     public void start() {
+    	primaryRoutine.start();
         for (Routine r : routines) {
         	r.start();
         }
@@ -56,6 +56,7 @@ public class ParallelRoutine extends Routine {
 
 	@Override
 	public void cancel() {
+		primaryRoutine.cancel();
 		for (Routine r : routines) {
         	r.cancel();
         }
@@ -70,9 +71,5 @@ public class ParallelRoutine extends Routine {
 		}
 		return name;
 
-	}
-	
-	public void cleanUpAtEnd() {
-		cleanUpWhenDone = false;
 	}
 }

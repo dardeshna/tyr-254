@@ -31,12 +31,7 @@ public class Drive extends Subsystem implements Loop {
 		HIGH, LOW
 	}
 	public DriveGear mGear;
-	
-	public enum DriveState {
-		CONTROLLER, OPEN, IDLE
-	}
-	public DriveState state = DriveState.IDLE;
-	
+		
 	// Encoder DPP
 	protected final double m_inches_per_tick;
 
@@ -82,32 +77,32 @@ public class Drive extends Subsystem implements Loop {
 	}
 	
 	public void setOpenLoop(DriveSignal signal) {
-		state = DriveState.OPEN;
+		state = SubsystemState.OPEN;
 		m_controller = null;
 		setDriveOutputs(signal);
 	}
 	
 	public void turnAngle(double heading, double maxVel) {
-		state = DriveState.CONTROLLER;
+		state = SubsystemState.CONTROLLER;
 		m_controller = new GyroTurnAngleController(getPhysicalPose(), heading, maxVel);
 	}
 	
 	public void driveDist(double distance, double maxVel) {
-		state = DriveState.CONTROLLER;
+		state = SubsystemState.CONTROLLER;
 		m_left_encoder.reset();
 		m_right_encoder.reset();
 		m_controller = new DriveStraightController(getPhysicalPose(), distance, maxVel);
 	}
 	
 	public void reset() {
-		state = DriveState.OPEN;
+		state = SubsystemState.OPEN;
 		m_left_encoder.reset();
 		m_right_encoder.reset();
 		m_controller = null;
 	}
 	
 	public void idle() {
-		state = DriveState.IDLE;
+		state = SubsystemState.IDLE;
 		setDriveOutputs(DriveSignal.NEUTRAL);
 		m_controller = null;
 	}
@@ -140,7 +135,7 @@ public class Drive extends Subsystem implements Loop {
 	
 	@Override
 	public void onLoop() {
-		if (state == DriveState.CONTROLLER)
+		if (state == SubsystemState.CONTROLLER)
 			setDriveOutputs(m_controller.update(getPhysicalPose()));
 	}
 	

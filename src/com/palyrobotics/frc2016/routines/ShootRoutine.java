@@ -6,14 +6,14 @@ import com.palyrobotics.lib.util.routines.Routine;
 
 import edu.wpi.first.wpilibj.Timer;
 
-public class ShootSequence extends Routine {
+public class ShootRoutine extends Routine {
 	// Used to track the waitTime
 	private Timer mTimer = new Timer();		
 	// Wait time before unlocking shooter (for grabber and extending lag)
 	private final double waitTime = .35;
 	private boolean mIsDone = false;
 	
-	public ShootSequence() {
+	public ShootRoutine() {
 		requires(kShooter);
 	}
 	

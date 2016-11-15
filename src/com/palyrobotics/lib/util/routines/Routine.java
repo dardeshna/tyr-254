@@ -61,7 +61,7 @@ public abstract class Routine {
 	/**
 	 * Called when routine is manually canceled
 	 */
-	public void cancel() { }
+	public void cancel() { cleanup(); }
 
 	/**
 	 * Gives a string name for the routine or action

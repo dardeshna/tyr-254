@@ -10,7 +10,7 @@ import com.palyrobotics.lib.util.routines.Routine;
  * @author Devin
  *
  */
-public class BasicActions {
+public class BasicRoutines {
 
 	public static class ShooterDown extends Routine {	
 		public ShooterDown() {

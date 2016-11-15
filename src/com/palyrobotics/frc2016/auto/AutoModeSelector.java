@@ -67,6 +67,7 @@ public class AutoModeSelector {
 		return list;
 	}
 
+	@SuppressWarnings("unchecked")
 	public JSONArray getAutoModeJSONList() {
 		JSONArray list = new JSONArray();
 		list.addAll(getAutoModeList());

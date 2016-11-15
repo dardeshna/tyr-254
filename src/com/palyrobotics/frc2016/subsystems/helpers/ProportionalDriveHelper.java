@@ -1,7 +1,7 @@
 package com.palyrobotics.frc2016.subsystems.helpers;
 import com.palyrobotics.frc2016.subsystems.Drive;
-import com.palyrobotics.frc2016.subsystems.Drive.DriveState;
 import com.team254.lib.util.DriveSignal;
+import com.team254.lib.util.Subsystem.SubsystemState;
 
 import edu.wpi.first.wpilibj.DriverStation;
 
@@ -19,7 +19,7 @@ public class ProportionalDriveHelper {
 			return;
 		}
 
-		if (drive.state != DriveState.OPEN) {
+		if (drive.state != SubsystemState.OPEN) {
 			return;
 		}
 

@@ -8,7 +8,6 @@ import com.palyrobotics.frc2016.subsystems.Breacher;
 import com.palyrobotics.frc2016.subsystems.Drive;
 import com.palyrobotics.frc2016.subsystems.Intake;
 import com.palyrobotics.frc2016.subsystems.Shooter;
-import com.team254.lib.util.DriveSignal;
 import com.team254.lib.util.Looper;
 import com.team254.lib.util.RobotData;
 import com.team254.lib.util.SystemManager;
@@ -23,17 +22,15 @@ public class Robot extends IterativeRobot {
 	public enum RobotState {
 		DISABLED, AUTONOMOUS, TELEOP
 	}
-	public static RobotState s_robot_state = RobotState.DISABLED;
+	public static RobotState robotState = RobotState.DISABLED;
 	public static RobotState getState() {
-		return s_robot_state;
+		return robotState;
 	}
 	public static void setState(RobotState state) {
-		s_robot_state = state;
+		robotState = state;
 	}
 	
-	Looper subsystem_looper = new Looper();
-
-	AutoModeExecuter autoModeRunner = new AutoModeExecuter();
+	Looper subsystemLooper = new Looper();
 	
 	// Subsystems
 	Drive drive = HardwareAdaptor.kDrive;
@@ -42,14 +39,15 @@ public class Robot extends IterativeRobot {
 	Breacher breacher = HardwareAdaptor.kBreacher;
 	PowerDistributionPanel pdp = HardwareAdaptor.kPDP;
 
-	RoutineManager routine_manager = new RoutineManager();
-	OperatorInterface operator_interface = new OperatorInterface(routine_manager);
+	RoutineManager routineManager = new RoutineManager();
+	OperatorInterface operatorInterface = new OperatorInterface(routineManager);
+	AutoModeExecuter autoModeRunner = new AutoModeExecuter(routineManager);
 
 	Joystick leftStick = HardwareAdaptor.kLeftStick;
 	Joystick rightStick = HardwareAdaptor.kRightStick;
 	Joystick operatorStick = HardwareAdaptor.kOperatorStick;
 
-	Dashboard mDashboard = Dashboard.getInstance();
+	Dashboard dashboard = Dashboard.getInstance();
 	NetworkTable sensorTable;
 
 	static {
@@ -59,11 +57,11 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void robotInit() {
 		System.out.println("Start robotInit()");
-		subsystem_looper.register(drive);
-		subsystem_looper.register(shooter);
-		subsystem_looper.register(breacher);
+		subsystemLooper.register(drive);
+		subsystemLooper.register(shooter);
+		subsystemLooper.register(breacher);
 		sensorTable = NetworkTable.getTable("Sensor");
-		mDashboard.init();
+		dashboard.init();
 	}
 
 	@Override
@@ -76,32 +74,32 @@ public class Robot extends IterativeRobot {
 		// Prestart auto mode
 		autoModeRunner.start();
 		// Start control loops
-		subsystem_looper.start();
+		subsystemLooper.start();
 	}
 
 	@Override
 	public void autonomousPeriodic() {
-		mDashboard.update();
+		dashboard.update();
 	}
 
 	@Override
 	public void teleopInit() {
 		setState(RobotState.TELEOP);
 		System.out.println("Start teleopInit()");
-		subsystem_looper.start();
+		subsystemLooper.start();
 	}
 
 	@Override
 	public void teleopPeriodic() {
 		// Passes joystick control to subsystems for their processing
 		
-		operator_interface.update();
-		routine_manager.update();
+		operatorInterface.update();
+		routineManager.update();
 
 		// Update sensorTable with encoder distances
 		sensorTable.putString("left", String.valueOf(HardwareAdaptor.kLeftDriveEncoder.getDistance()));
 		sensorTable.putString("right", String.valueOf(HardwareAdaptor.kRightDriveEncoder.getDistance()));
-		mDashboard.update();
+		dashboard.update();
 	}
 
 	@Override
@@ -114,10 +112,10 @@ public class Robot extends IterativeRobot {
 		autoModeRunner.stop();
 
 		// Stop routines
-		routine_manager.reset();
+		routineManager.reset();
 
 		// Stop control loops
-		subsystem_looper.stop();
+		subsystemLooper.stop();
 
 		drive.idle();
 		shooter.idle();

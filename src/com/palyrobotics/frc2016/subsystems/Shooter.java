@@ -39,37 +39,29 @@ public class Shooter extends Subsystem implements Loop {
 	static final double kRaisingVoltage = 0.5;
 	// Shooter motor controller for holding position, or raising/lowering shooter
 	Controller m_controller = null;
-	
-	private double joystickInput = 0;
-	
-	// Used mainly for autonomous raising and lowering of the shooter
-	public enum ShooterState {
-		CONTROLLER, OPEN, IDLE
-	}
-	public ShooterState state = ShooterState.IDLE;
-	
+		
 	public void raise() {
-		state = ShooterState.CONTROLLER;
+		state = SubsystemState.CONTROLLER;
 		m_controller = new ConstantVoltageController(kRaisingVoltage);
 	}
 	
 	public void lower() {
-		state = ShooterState.CONTROLLER;
+		state = SubsystemState.CONTROLLER;
 		m_controller = new ConstantVoltageController(kLoweringVoltage);
 	}
 	
 	public void update(double joystickInput) {
 		if(m_potentiometer == null) {
-			state = ShooterState.OPEN;
+			state = SubsystemState.OPEN;
 			m_shooter_motor.set(joystickInput*kJoystickScaleFactor);
 		}
 		else {
 			// If joystick is within deadzone, then hold position using potentiometer
 			if(joystickInput < kDeadzone) {
-				state = ShooterState.CONTROLLER;
+				state = SubsystemState.CONTROLLER;
 				holdPosition();
 			} else {
-				state = ShooterState.OPEN;
+				state = SubsystemState.OPEN;
 				cancelHoldPosition();
 				m_shooter_motor.set(joystickInput*kJoystickScaleFactor);
 			}
@@ -154,7 +146,7 @@ public class Shooter extends Subsystem implements Loop {
 	}
 	
 	public void idle() {
-		state = ShooterState.IDLE;
+		state = SubsystemState.IDLE;
 		m_shooter_motor.set(0);
 		m_controller = null;
 	}
@@ -168,7 +160,7 @@ public class Shooter extends Subsystem implements Loop {
 	 */
 	@Override
 	public void onLoop() {
-		if (state == ShooterState.CONTROLLER) {
+		if (state == SubsystemState.CONTROLLER) {
 			if(m_controller instanceof StrongHoldController) {
 				if(((StrongHoldController) m_controller).isEnabled()) {
 					m_shooter_motor.set(((StrongHoldController) m_controller).update());

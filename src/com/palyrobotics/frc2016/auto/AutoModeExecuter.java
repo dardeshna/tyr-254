@@ -1,33 +1,47 @@
 package com.palyrobotics.frc2016.auto;
 
-public class AutoModeExecuter {
-    private AutoModeBase m_auto_mode;
-    private Thread m_thread = null;
+import com.palyrobotics.frc2016.behavior.RoutineManager;
 
-    public void setAutoMode(AutoModeBase new_auto_mode) {
-        m_auto_mode = new_auto_mode;
+public class AutoModeExecuter {
+    private AutoMode autoMode;
+    private Thread thread = null;
+    private RoutineManager routineManager;
+
+    public AutoModeExecuter(RoutineManager routineManager) {
+    	this.routineManager = routineManager;
+    }
+    
+    public void setAutoMode(AutoMode autoMode) {
+        this.autoMode = autoMode;
     }
 
+    /**
+     * Starts the thread and begins the AutoMode
+     */
     public void start() {
-        if (m_thread == null) {
-            m_thread = new Thread(new Runnable() {
+        if (thread == null) {
+            thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    if (m_auto_mode != null) {
-                        m_auto_mode.run();
+                    if (autoMode != null) {
+                    	autoMode.setRoutineManager(routineManager);
+                        autoMode.run();
                     }
                 }
             });
-            m_thread.start();
+            thread.start();
         }
 
     }
 
+    /**
+     * Terminates the AutoMode if it is not done already and kills the thread
+     */
     public void stop() {
-        if (m_auto_mode != null) {
-            m_auto_mode.stop();
+        if (autoMode != null) {
+            autoMode.stop();
         }
-        m_thread = null;
+        thread = null;
     }
 
 }

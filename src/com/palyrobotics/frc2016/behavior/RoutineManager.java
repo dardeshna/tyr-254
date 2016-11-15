@@ -6,66 +6,53 @@ import com.team254.lib.util.Tappable;
 
 public class RoutineManager implements Tappable {
 
+	private Routine currentRoutine = null;
 
-	private Routine m_cur_routine = null;
-	//    private ManualRoutine m_manual_routine = new ManualRoutine();
-
-	public RoutineManager() {
-
-	}
-
-	private void setNewRoutine(Routine new_routine) {
-		if ((new_routine != m_cur_routine) && (m_cur_routine != null)) {
-			m_cur_routine.cancel();
-		}
-		if ((new_routine != m_cur_routine) && (new_routine != null)) {
-			new_routine.start();
-		}
-		m_cur_routine = new_routine;
-
-	}
-
-	public Routine getCurrentRoutine() {
-		return m_cur_routine;
+	public synchronized void submitRoutine(Routine newRoutine) {
+		if (!newRoutine.getClass().equals(currentRoutine.getClass())) {
+			setNewRoutine(newRoutine);
+		}	
 	}
 	
-	public void reset() {
-		if(m_cur_routine != null) {
-			m_cur_routine.cancel();
-		}
-		setNewRoutine(null);
-		
-	}
-	
-	public void submitRoutine(Routine routine) {
-		
-		if (!routine.getClass().equals(m_cur_routine.getClass())) {
-			setNewRoutine(routine);
-		}
-		
-	}
-	
-	public void update() {
-		
-		if (m_cur_routine != null) {
-			
-			m_cur_routine.update();
-			if (m_cur_routine.isFinished()) {
-				m_cur_routine.cleanup();
+	public synchronized void update() {
+		if (currentRoutine != null) {
+			currentRoutine.update();
+			if (currentRoutine.isFinished()) {
+				currentRoutine.cleanup();
 				setNewRoutine(null);
 			}
-			
 		}
-		
 	}
+	
+	public synchronized void reset() {
+		if(currentRoutine != null) {
+			currentRoutine.cancel();
+		}
+		setNewRoutine(null);	
+	}
+	
+	public boolean isBusy() {
+		return !(currentRoutine == null);
+	}	
 
+	private void setNewRoutine(Routine newRoutine) {
+		if ((newRoutine != currentRoutine) && (currentRoutine != null)) {
+			currentRoutine.cancel();
+		}
+		if ((newRoutine != currentRoutine) && (newRoutine != null)) {
+			newRoutine.start();
+		}
+		currentRoutine = newRoutine;
+
+	}
+	
 	@Override
 	public void getState(StateHolder states) {
-		states.put("mode", m_cur_routine != null ? m_cur_routine.getName() : "---");
+		states.put("mode", currentRoutine != null ? currentRoutine.getName() : "---");
 	}
 
 	@Override
 	public String getName() {
-		return "behaviors";
+		return "RoutineManager";
 	}
 }
