@@ -1,13 +1,13 @@
 package com.palyrobotics.frc2016.auto.modes;
 
 import com.palyrobotics.frc2016.Constants;
-import com.palyrobotics.frc2016.actions.BasicActions.IntakeBall;
-import com.palyrobotics.frc2016.actions.BasicActions.ShooterDown;
-import com.palyrobotics.frc2016.actions.BasicActions.ShooterUp;
-import com.palyrobotics.frc2016.actions.ShootSequence;
 import com.palyrobotics.frc2016.auto.AutoMode;
 import com.palyrobotics.frc2016.routines.AutoAlignmentRoutine;
 import com.palyrobotics.frc2016.routines.EncoderDriveRoutine;
+import com.palyrobotics.frc2016.routines.ShootSequence;
+import com.palyrobotics.frc2016.routines.BasicActions.IntakeBall;
+import com.palyrobotics.frc2016.routines.BasicActions.ShooterDown;
+import com.palyrobotics.frc2016.routines.BasicActions.ShooterUp;
 
 /**
  * Goes under the low bar then shoots a high goal

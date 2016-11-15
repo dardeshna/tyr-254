@@ -1,4 +1,4 @@
-package com.palyrobotics.frc2016.actions;
+package com.palyrobotics.frc2016.routines;
 
 import static com.palyrobotics.frc2016.HardwareAdaptor.kIntake;
 import static com.palyrobotics.frc2016.HardwareAdaptor.kShooter;
