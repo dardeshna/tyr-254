@@ -1,3 +1,2 @@
-# Lady-Derica
-Robot code for Team 8's offseason robot, "Lady-Derica"
-Uses Team 254's library.
+# Tyr-254
+Robot code for Team 8's 2016 Stronghold robot, Tyr. Written using a modified version of Team 254's library.  Includes code architecture changes and re-implementation of all existing features.
