@@ -1,6 +1,7 @@
 package com.palyrobotics.frc2016.routines;
 
 import com.palyrobotics.frc2016.HardwareAdaptor;
+import com.palyrobotics.frc2016.Requirables;
 import com.palyrobotics.frc2016.subsystems.Drive;
 import com.palyrobotics.lib.util.routines.Routine;
 import com.team254.lib.util.DriveSignal;
@@ -29,7 +30,7 @@ public class DriveTimeRoutine extends Routine {
 	 * @param velocity What velocity to drive at (0 to 1)
 	 */
 	public DriveTimeRoutine(double time, double velocity) {
-		requires(drive);
+		requires(Requirables.rDrive);
 		setTimeSetpoint(time);
 		setVelocity(velocity);
 	}

@@ -14,30 +14,30 @@ public class TimedRoutine extends Routine {
 	private double mRunTime;
 	private double mStartTime;
 
-	private Routine mAction;
+	private Routine mRoutine;
 
 	/**
 	 * 
-	 * @param action
+	 * @param routine
 	 *            Routine to update
 	 * @param time
 	 *            Time in seconds to run this
 	 */
-	public TimedRoutine(Routine action, double time) {
-		this.mAction = action;
+	public TimedRoutine(Routine routine, double time) {
+		this.mRoutine = routine;
 		this.mRunTime = time;
-		requiredSubsystems = action.requiredSubsystems;
+		required = routine.required;
 	}
 
 	@Override
 	public void start() {
 		this.mStartTime = Timer.getFPGATimestamp();
-		mAction.start();
+		mRoutine.start();
 	}
 
 	@Override
 	public void update() {
-		mAction.update();
+		mRoutine.update();
 	}
 	
 	@Override
@@ -47,17 +47,17 @@ public class TimedRoutine extends Routine {
 	
 	@Override
 	public void cleanup() {
-		mAction.cleanup();
+		mRoutine.cleanup();
 	}
 	
 	@Override
 	public void cancel() {
-		mAction.cancel();
+		mRoutine.cancel();
 	}
 
 	@Override
 	public String getName() {
-		return "Timed" + mAction.getName();
+		return "Timed" + mRoutine.getName();
 	}
 
 }

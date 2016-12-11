@@ -3,6 +3,7 @@ package com.palyrobotics.frc2016.routines;
 import static com.palyrobotics.frc2016.HardwareAdaptor.kIntake;
 import static com.palyrobotics.frc2016.HardwareAdaptor.kShooter;
 
+import com.palyrobotics.frc2016.Requirables;
 import com.palyrobotics.lib.util.routines.Routine;
 
 /**
@@ -14,7 +15,7 @@ public class BasicRoutines {
 
 	public static class ShooterDown extends Routine {	
 		public ShooterDown() {
-			requires(kShooter);
+			requires(Requirables.rShooterMotor);
 		}
 		@Override
 		public void start() {
@@ -31,7 +32,7 @@ public class BasicRoutines {
 	
 	public static class ShooterUp extends Routine {
 		public ShooterUp() {
-			requires(kShooter);
+			requires(Requirables.rShooterMotor);
 		}
 		@Override
 		public void start() {
@@ -48,7 +49,7 @@ public class BasicRoutines {
 	
 	public static class IntakeBall extends Routine {
 		public IntakeBall() {
-			requires(kIntake);
+			requires(Requirables.rIntake);
 		}
 		@Override
 		public void start() {
@@ -65,7 +66,7 @@ public class BasicRoutines {
 	
 	public static class ExpelBall extends Routine {
 		public ExpelBall() {
-			requires(kIntake);
+			requires(Requirables.rIntake);
 		}
 		@Override
 		public void start() {

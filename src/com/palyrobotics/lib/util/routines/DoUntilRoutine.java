@@ -14,12 +14,7 @@ public class DoUntilRoutine extends Routine {
     public DoUntilRoutine(Routine primaryRoutine, Routine... routines) {
         this.routines = routines;
         this.primaryRoutine = primaryRoutine;
-        Routine[] allRoutines = new Routine[routines.length+1];
-        for (int i = 0; i < routines.length; i++) {
-        	allRoutines[i] = routines[i];
-        }
-        allRoutines[allRoutines.length-1] = primaryRoutine;
-        requiredSubsystems = Routine.subsystems(allRoutines);
+        required = Routine.required(Routine.required(routines, true), primaryRoutine.required, false);
     }
 
     @Override

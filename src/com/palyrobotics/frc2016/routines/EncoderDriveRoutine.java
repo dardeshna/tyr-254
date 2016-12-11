@@ -1,6 +1,7 @@
 package com.palyrobotics.frc2016.routines;
 
 import com.palyrobotics.frc2016.HardwareAdaptor;
+import com.palyrobotics.frc2016.Requirables;
 import com.palyrobotics.frc2016.subsystems.Drive;
 import com.palyrobotics.lib.util.routines.Routine;
 import com.team254.lib.util.DriveSignal;
@@ -61,7 +62,7 @@ public class EncoderDriveRoutine extends Routine {
 	 * @param velocity Target velocity
 	 */
 	public EncoderDriveRoutine(double distance, double timeout, double velocity) {
-		requires(drive);
+		requires(Requirables.rDrive);
 		this.distance = distance;
 		this.m_timeout = timeout;
 		setVelocity(velocity);

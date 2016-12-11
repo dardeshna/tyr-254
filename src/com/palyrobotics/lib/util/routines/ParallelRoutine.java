@@ -13,7 +13,7 @@ public class ParallelRoutine extends Routine {
     
     public ParallelRoutine(Routine... routines) {
         this.routines = routines;
-        requiredSubsystems = Routine.subsystems(this.routines);
+        required = Routine.required(this.routines, false);
     }
 
     @Override

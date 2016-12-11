@@ -2,6 +2,7 @@ package com.palyrobotics.frc2016.routines;
 
 import static com.palyrobotics.frc2016.HardwareAdaptor.kShooter;
 
+import com.palyrobotics.frc2016.Requirables;
 import com.palyrobotics.lib.util.routines.Routine;
 
 import edu.wpi.first.wpilibj.Timer;
@@ -14,7 +15,7 @@ public class ShootRoutine extends Routine {
 	private boolean mIsDone = false;
 	
 	public ShootRoutine() {
-		requires(kShooter);
+		requires(Requirables.rShooter);
 	}
 	
 	@Override

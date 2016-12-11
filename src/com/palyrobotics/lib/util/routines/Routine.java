@@ -1,7 +1,9 @@
 package com.palyrobotics.lib.util.routines;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
+import com.palyrobotics.lib.util.Requirable;
 import com.team254.lib.util.Subsystem;
 
 /**
@@ -22,7 +24,7 @@ import com.team254.lib.util.Subsystem;
  */
 public abstract class Routine {
 
-	public Subsystem[] requiredSubsystems;
+	public ArrayList<Requirable> required;
 
 	/**
 	 * {@link Routine#requiredSubsystems} becomes this list of subsystems
@@ -32,8 +34,8 @@ public abstract class Routine {
 	 * @param subsystems
 	 *            all the subsystems that are required
 	 */
-	public void requires(Subsystem... subsystems) {
-		this.requiredSubsystems = subsystems;
+	public void requires(Requirable... required) {
+		this.required = new ArrayList<Requirable>(Arrays.asList(required));
 	}
 
 	/**
@@ -71,31 +73,46 @@ public abstract class Routine {
 	public abstract String getName();
 
 	/**
-	 * Helper method to find the common required subsystems of multiple routines
+	 * Helper method to find the common required objects of multiple routines
 	 * 
-	 * @param routines
-	 *            the routines to check
+	 * @param routines the routines to check
+	 * @param safe whether it is okay for composing routines to have the same subsystems
 	 * @return the required subsystems all require
 	 */
-	public static Subsystem[] subsystems(Routine[] routines) {
-		ArrayList<Subsystem> requiredSubsystemsList = new ArrayList<Subsystem>();
+	public static ArrayList<Requirable> required(Routine[] routines, boolean safe) {
+		ArrayList<Requirable> requiredList = new ArrayList<Requirable>();
 		for (Routine r : routines) {
-			for (Subsystem s : r.requiredSubsystems) {
-				for (Subsystem t : requiredSubsystemsList) {
-					if (s.equals(t)) {
-						try {
-							throw new Exception("Two routines require the same subsystem!" + s.getName());
-						} catch (Exception e) {
-							System.out.println(e.toString());
-							e.printStackTrace();
+			required(r.required, requiredList, safe);
+		}
+		return requiredList;
+	}
+	
+	public static ArrayList<Requirable> required(ArrayList<Requirable> requiredA, ArrayList<Requirable> requiredB, boolean safe) {
+		
+		//TODO: Logic is probably quite messed up
+		
+		ArrayList<Requirable> requiredList = new ArrayList<Requirable>();
+			for (Requirable a : requiredA) {
+				for (Requirable b : requiredB) {
+					if (b.getRequirables() != null) {
+						requiredList = required(requiredList, b.getRequirables(), safe);
+					}
+					if (a.equals(b)) {
+						if (!safe) {
+							try {
+								throw new Exception("Two routines require the same requirables!");
+							} catch (Exception e) {
+								System.out.println(e.toString());
+								e.printStackTrace();
+							}
 						}
 					} else {
-						requiredSubsystemsList.add(s);
+						requiredList.add(a);
 					}
 				}
 			}
-		}
-		return (Subsystem[]) requiredSubsystemsList.toArray();
+		return requiredList;
+		
 	}
 
 }

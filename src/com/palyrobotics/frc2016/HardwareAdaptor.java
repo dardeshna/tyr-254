@@ -4,7 +4,6 @@ import com.palyrobotics.frc2016.subsystems.Breacher;
 import com.palyrobotics.frc2016.subsystems.Drive;
 import com.palyrobotics.frc2016.subsystems.Intake;
 import com.palyrobotics.frc2016.subsystems.Shooter;
-import com.palyrobotics.lib.util.XboxController;
 import com.team254.lib.util.CheesySpeedController;
 
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
@@ -15,6 +14,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.SpeedController;
 import edu.wpi.first.wpilibj.VictorSP;
+import edu.wpi.first.wpilibj.XboxController;
 
 public class HardwareAdaptor {
 	/* 

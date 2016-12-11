@@ -4,9 +4,9 @@ import com.palyrobotics.frc2016.behavior.RoutineManager;
 import com.palyrobotics.frc2016.routines.TurnAngleRoutine;
 import com.palyrobotics.frc2016.subsystems.Drive.DriveGear;
 import com.palyrobotics.frc2016.subsystems.helpers.CheesyDriveHelper;
-import com.palyrobotics.lib.util.XboxController;
 
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
 
 public class OperatorInterface {
 

@@ -14,7 +14,8 @@ public class SequentialRoutine extends Routine {
 
     public SequentialRoutine(Routine... routines) {
         this.routines = routines;
-        requiredSubsystems = Routine.subsystems(routines);
+        required = Routine.required(routines, true);
+        
     }
 
     @Override
